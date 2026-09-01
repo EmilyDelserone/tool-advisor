@@ -128,13 +128,14 @@ The entire tool advisor experience — questions, decision logic, recommendation
 ### Design & Usability Requirements
 
 - **DR-001**: The wizard interface MUST be accessible (WCAG 2.1 AA minimum) including keyboard navigation and screen reader support
-- **DR-002**: The UI MUST be responsive across three breakpoints: mobile (≤480px, single column, full-width stacked buttons), tablet (≤768px, reduced padding, comparison table rows stacked with visible field labels), and desktop (>768px, full table layout). Interactive targets MUST be at least 44px tall
+- **DR-002**: The UI MUST be responsive across three breakpoints: mobile (≤480px, single column, full-width stacked buttons), tablet (≤768px, reduced padding, comparison table rows stacked with visible field labels), and desktop (>768px, full table layout). Primary action controls (Back, Next, See recommendation, Start over) MUST be at least 44px tall; inline informational affordances such as glossary triggers MUST be at least 24px, the WCAG 2.2 AA target-size minimum
 - **DR-003**: Each question MUST be presented with clear, non-technical phrasing appropriate for business stakeholders
 - **DR-004**: The progress indicator MUST be clearly visible and update after each question submission. It MUST read "Question X of Y" (or "Tiebreaker question X of Y") alongside a percentage complete, and expose `role="progressbar"` with `aria-valuenow`/`aria-valuemin`/`aria-valuemax` plus a polite live region
 - **DR-005**: The primary recommendation MUST be visually emphasized: tool name as the only `h1` at ~2.5rem, inside a tinted panel (light blue background, blue border, drop shadow) that is visually distinct from the comparison table; body copy at ≥16px with a minimum 4.5:1 contrast ratio
 - **DR-006**: The comparison table MUST be easy to scan: three columns, one row per runner-up, and no more than 60 words per cell
 - **DR-007**: Interaction copy MUST use these labels: "Back", "Next", "See recommendation" (final question), "Start over" (results), "Try again" (error state)
 - **DR-008**: Error states MUST render in the same card layout as the wizard, carry `role="alert"`, and use plain language with no stack traces or technical identifiers
+- **DR-009**: Technical terms in question and recommendation copy MUST offer an on-demand plain-English definition with one concrete example. The affordance MUST open on mouse hover, on touch tap, and from the keyboard, and MUST NOT change the user's answer when activated
 
 ### Non-Functional Requirements
 

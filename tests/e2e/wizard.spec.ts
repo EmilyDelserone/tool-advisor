@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TIE_PATH, UI_APP_PATH, answerByIndex, walkPath } from './helpers';
+import { TIE_PATH, UI_APP_PATH, answerByIndex, tabToFirstRadio, walkPath } from './helpers';
 
 const CORE_QUESTIONS = UI_APP_PATH.length;
 
@@ -47,7 +47,7 @@ test.describe('Wizard end-to-end (US1, US2, US3)', () => {
     await page.goto('/');
     await page.getByRole('radio').first().waitFor();
 
-    await page.locator('body').press('Tab');
+    await tabToFirstRadio(page);
     await page.keyboard.press('Space');
     await expect(page.getByRole('radio').first()).toBeChecked();
   });

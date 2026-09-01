@@ -10,6 +10,7 @@ import {
   tokens,
 } from '@fluentui/react-components';
 import type { RunnerUpTool } from '../engine/types';
+import { GlossaryText } from './GlossaryText';
 
 type ComparisonTableProps = {
   runnerUps: RunnerUpTool[];
@@ -69,10 +70,10 @@ export function ComparisonTable({ runnerUps }: ComparisonTableProps) {
                   {tool.name}
                 </TableCell>
                 <TableCell role="cell" data-label="Use case">
-                  {tool.primaryUseCase}
+                  <GlossaryText text={tool.primaryUseCase} />
                 </TableCell>
                 <TableCell role="cell" data-label="Why not this one?">
-                  {differentiationText}
+                  <GlossaryText text={differentiationText} />
                 </TableCell>
               </TableRow>
             ))}

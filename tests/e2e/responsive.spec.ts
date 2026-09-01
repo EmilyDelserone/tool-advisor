@@ -46,9 +46,17 @@ test.describe('Responsive layout (DR-002, DR-006)', () => {
     await page.setViewportSize({ width: 320, height: 720 });
     await page.goto('/');
 
-    for (const button of await page.getByRole('button').all()) {
+    // Inline glossary affordances follow the 24px WCAG 2.2 AA minimum, not the 44px action target
+    for (const button of await page
+      .getByRole('button', { name: /back|next|see recommendation/i })
+      .all()) {
       const box = await button.boundingBox();
       expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+    }
+
+    for (const trigger of await page.getByRole('button', { name: /mean\?$/i }).all()) {
+      const box = await trigger.boundingBox();
+      expect(box?.height ?? 0).toBeGreaterThanOrEqual(24);
     }
   });
 });

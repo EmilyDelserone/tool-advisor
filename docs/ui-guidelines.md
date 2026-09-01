@@ -61,8 +61,25 @@ Three breakpoints, matching DR-002:
 | ≤768px (tablet) | Reduced padding, comparison table rows stack with visible field labels |
 | >768px (desktop) | Full table layout |
 
-Interactive targets are at least 44px tall at every breakpoint. No horizontal scrolling at any
-width — this is asserted in `tests/e2e/responsive.spec.ts`.
+Interactive targets: primary actions (Back, Next, See recommendation, Start over) are at least 44px
+tall at every breakpoint; inline informational affordances such as glossary triggers are at least
+24px, the WCAG 2.2 AA minimum. No horizontal scrolling at any width — this is asserted in
+`tests/e2e/responsive.spec.ts`.
+
+## Glossary definitions
+
+Technical vocabulary in question and recommendation copy carries an inline definition affordance
+(`GlossaryTerm`), rendered immediately after the first mention of each term.
+
+- Content lives in `src/data/glossary.ts` — a plain-English definition plus exactly one concrete
+  example per term. Never write definitions inline in a component.
+- The trigger is a Fluent `Popover` opened by a small circular `Button`. It must work three ways:
+  **mouse hover**, **touch tap**, and **keyboard** (Enter/Space, Escape to dismiss). Hover is
+  restricted to `pointerType === 'mouse'` so a tap is not opened by a synthesized hover and then
+  immediately closed by the click.
+- Never nest the trigger inside a radio's `<label>`; place it as a sibling so opening a definition
+  cannot change the user's answer.
+- Annotate only the first mention of a term in a given block of copy.
 
 ## Content and tone
 

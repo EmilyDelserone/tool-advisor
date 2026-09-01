@@ -14,3 +14,22 @@ export async function walkPath(page: Page, path: number[]) {
     await answerByIndex(page, optionIndex);
   }
 }
+
+/** Tabs forward until a radio has focus, so glossary triggers in the question text don't break the walk. */
+export async function tabToFirstRadio(page: Page, maxPresses = 8) {
+  await page.locator('body').press('Tab');
+
+  for (let i = 0; i < maxPresses; i += 1) {
+    const onRadio = await page.evaluate(
+      () => document.activeElement?.getAttribute('type') === 'radio'
+    );
+
+    if (onRadio) {
+      return;
+    }
+
+    await page.keyboard.press('Tab');
+  }
+
+  throw new Error('Could not reach a radio option using Tab');
+}

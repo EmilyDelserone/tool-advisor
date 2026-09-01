@@ -1,6 +1,7 @@
 import { Button, Card, Text, Title1, makeStyles, tokens } from '@fluentui/react-components';
 import type { Recommendation } from '../engine/types';
 import { ComparisonTable } from './ComparisonTable';
+import { GlossaryText } from './GlossaryText';
 
 type RecommendationResultProps = {
   recommendation: Recommendation;
@@ -49,7 +50,7 @@ export function RecommendationResult({ recommendation, onRestart }: Recommendati
           {recommendation.primaryTool.name}
         </Title1>
         <Text size={400} className={styles.justification}>
-          {recommendation.justification}
+          <GlossaryText text={recommendation.justification} />
         </Text>
 
         <div className={styles.actions}>

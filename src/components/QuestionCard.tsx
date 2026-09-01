@@ -8,6 +8,8 @@ import {
   tokens,
 } from '@fluentui/react-components';
 import type { Question } from '../engine/types';
+import { GlossaryText, findGlossaryEntry } from './GlossaryText';
+import { GlossaryTerm } from './GlossaryTerm';
 
 type QuestionCardProps = {
   question: Question;
@@ -31,6 +33,10 @@ const useStyles = makeStyles({
     display: 'grid',
     gap: tokens.spacingVerticalS,
     marginTop: tokens.spacingVerticalS,
+  },
+  option: {
+    display: 'flex',
+    alignItems: 'center',
   },
   actions: {
     display: 'flex',
@@ -69,16 +75,24 @@ export function QuestionCard({
       }}
     >
       <Card className={styles.optionsCard}>
-        <Field label={question.text} size="large">
+        <Field label={{ children: <GlossaryText text={question.text} /> }} size="large">
           <RadioGroup
             className={styles.options}
             name={question.id}
             value={selectedValue ?? ''}
             onChange={(_, data) => onSelect(data.value)}
           >
-            {options.map((option) => (
-              <Radio key={option.id} value={option.id} label={option.label} />
-            ))}
+            {options.map((option) => {
+              // Trigger sits outside the <label> so opening it cannot select the radio
+              const entry = findGlossaryEntry(option.label);
+
+              return (
+                <div className={styles.option} key={option.id}>
+                  <Radio value={option.id} label={option.label} />
+                  {entry ? <GlossaryTerm entry={entry} /> : null}
+                </div>
+              );
+            })}
           </RadioGroup>
         </Field>
       </Card>
