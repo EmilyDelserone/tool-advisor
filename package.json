@@ -12,6 +12,7 @@
     "test:unit": "vitest run --reporter=verbose tests/unit",
     "test:integration": "vitest run --reporter=verbose tests/integration",
     "test:e2e": "playwright test",
+    "check:size": "node scripts/check-bundle-size.mjs",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/ tests/",
     "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\""

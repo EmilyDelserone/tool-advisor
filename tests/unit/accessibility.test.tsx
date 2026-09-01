@@ -1,0 +1,76 @@
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import App from '../../src/App';
+import rulesData from '../../src/data/rules.json';
+import { findPrimaryRecommendation } from '../../src/engine/recommendationEngine';
+import { RecommendationResult } from '../../src/components/RecommendationResult';
+import type { Answer, RulesFile } from '../../src/engine/types';
+
+const rules = rulesData as RulesFile;
+
+const answers: Answer[] = [
+  {
+    questionId: 'q1-ui',
+    value: 'yes',
+    timestamp: 0,
+    activatedSignalIds: ['ui-required', 'structured-data-entry'],
+    activatedRedFlagIds: ['needs-ui'],
+  },
+];
+
+describe('Accessible markup (DR-001, SC-006)', () => {
+  it('gives every radio option an associated label', () => {
+    const { container } = render(<App />);
+
+    const radios = Array.from(container.querySelectorAll('input[type="radio"]'));
+    expect(radios.length).toBeGreaterThan(0);
+
+    radios.forEach((radio) => {
+      expect(radio.closest('label')).toBeTruthy();
+      expect(radio.getAttribute('name')).toBeTruthy();
+    });
+  });
+
+  it('groups question options in a fieldset with the question as its legend', () => {
+    const { container } = render(<App />);
+
+    const fieldset = container.querySelector('fieldset');
+    expect(fieldset).toBeTruthy();
+    expect(fieldset!.querySelector('legend')?.textContent).toBeTruthy();
+  });
+
+  it('renders the wizard inside a main landmark with a single h1', () => {
+    render(<App />);
+
+    expect(screen.getByRole('main')).toBeTruthy();
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+  });
+
+  it('gives every button an explicit type and accessible name', () => {
+    const { container } = render(<App />);
+
+    Array.from(container.querySelectorAll('button')).forEach((button) => {
+      expect(['button', 'submit']).toContain(button.getAttribute('type'));
+      expect(button.textContent?.trim().length).toBeGreaterThan(0);
+    });
+  });
+
+  it('uses scoped column headers in the comparison table', () => {
+    const recommendation = findPrimaryRecommendation(answers, rules);
+    const { container } = render(
+      <RecommendationResult recommendation={recommendation} onRestart={() => {}} />
+    );
+
+    const headers = Array.from(container.querySelectorAll('th'));
+    expect(headers).toHaveLength(3);
+    headers.forEach((header) => expect(header.getAttribute('scope')).toBe('col'));
+  });
+
+  it('keeps heading order sequential on the results view', () => {
+    const recommendation = findPrimaryRecommendation(answers, rules);
+    render(<RecommendationResult recommendation={recommendation} onRestart={() => {}} />);
+
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(1);
+  });
+});

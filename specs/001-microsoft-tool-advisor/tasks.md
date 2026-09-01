@@ -20,17 +20,17 @@
 
 **Purpose**: Project initialization with React, Vite, TypeScript, and testing frameworks
 
-- [ ] T001 Initialize Vite React project with TypeScript: `npm create vite@latest tool-advisor -- --template react-ts`
-- [ ] T002 Install core dependencies: React 18+, TypeScript (ES2020+), React Testing Library, Vitest, Playwright in package.json
-- [ ] T003 [P] Configure TypeScript strict mode in tsconfig.json; target ES2020
-- [ ] T004 [P] Create project structure: `src/{components,engine,data,hooks,utils}`, `tests/{unit,integration,e2e}`, `public/`
-- [ ] T005 [P] Setup Vite configuration: HMR, build output for production bundle (<500KB gzipped target)
-- [ ] T006 [P] Configure Vitest: vitest.config.ts with React support, coverage reporting, test paths
-- [ ] T007 [P] Configure Playwright: playwright.config.ts for browser automation (Chrome, Firefox, Safari)
-- [ ] T008 Setup linting: ESLint + Prettier in .eslintrc.json, .prettierrc
-- [ ] T009 [P] Create public/index.html entry point with semantic HTML, accessibility attrs (lang, viewport, charset)
-- [ ] T010 [P] Create src/main.tsx entry point importing App.tsx and mounting to DOM
-- [ ] T011 Create README.md with project overview, tech stack, setup instructions, and running commands
+- [X] T001 Initialize Vite React project with TypeScript: `npm create vite@latest tool-advisor -- --template react-ts`
+- [X] T002 Install core dependencies: React 18+, TypeScript (ES2020+), React Testing Library, Vitest, Playwright in package.json
+- [X] T003 [P] Configure TypeScript strict mode in tsconfig.json; target ES2020
+- [X] T004 [P] Create project structure: `src/{components,engine,data,hooks,utils}`, `tests/{unit,integration,e2e}`, `public/`
+- [X] T005 [P] Setup Vite configuration: HMR, build output for production bundle (<500KB gzipped target)
+- [X] T006 [P] Configure Vitest: vitest.config.ts with React support, coverage reporting, test paths
+- [X] T007 [P] Configure Playwright: playwright.config.ts for browser automation (Chrome, Firefox, Safari)
+- [X] T008 Setup linting: ESLint + Prettier in .eslintrc.json, .prettierrc
+- [X] T009 [P] Create public/index.html entry point with semantic HTML, accessibility attrs (lang, viewport, charset)
+- [X] T010 [P] Create src/main.tsx entry point importing App.tsx and mounting to DOM
+- [X] T011 Create README.md with project overview, tech stack, setup instructions, and running commands
 
 **Checkpoint**: Project structure ready, all dependencies installed, dev server can start (`npm run dev`)
 
@@ -44,34 +44,34 @@
 
 ### 2A: Core Types & Engine Interfaces
 
-- [ ] T012 Create src/engine/types.ts with TypeScript interfaces: Tool, Signal, RedFlag, Question, Answer, Recommendation, RunnerUpTool, TiebreakerQuestion, RulesFile, WizardState
-- [ ] T013 Create src/engine/recommendationEngine.ts stub with pure function signatures (no implementation)
-- [ ] T014 Create src/data/rules.json template with schema: version, tools[], signals[], redFlags[], questions[], questionMappings[], tiebreakers[], metadata
-- [ ] T015 Populate rules.json with 5 tools from spec: Power Automate, Power Apps, Copilot Studio, Azure Logic Apps, Azure Functions (use data-model.md as reference)
+- [X] T012 Create src/engine/types.ts with TypeScript interfaces: Tool, Signal, RedFlag, Question, Answer, Recommendation, RunnerUpTool, TiebreakerQuestion, RulesFile, WizardState
+- [X] T013 Create src/engine/recommendationEngine.ts stub with pure function signatures (no implementation)
+- [X] T014 Create src/data/rules.json template with schema: version, tools[], signals[], redFlags[], questions[], questionMappings[], tiebreakers[], metadata
+- [X] T015 Populate rules.json with 5 tools from spec: Power Automate, Power Apps, Copilot Studio, Azure Logic Apps, Azure Functions (use data-model.md as reference)
 
 ### 2B: Decision Engine Implementation
 
-- [ ] T016 Implement calculateToolScores() in src/engine/scoring.ts: pure function that scores each tool based on activated signals/red flags
-- [ ] T017 Implement findPrimaryRecommendation() in src/engine/recommendationEngine.ts: returns top-scoring tool + runner-ups
-- [ ] T018 Implement detectTie() in src/engine/recommendationEngine.ts: returns true if top 2+ tools have equal score
-- [ ] T019 Implement applyTiebreakerSignals() in src/engine/recommendationEngine.ts: applies tiebreaker signals to break ties (deterministic)
-- [ ] T020 Implement generateJustification() in src/engine/recommendationEngine.ts: returns plain-language text citing matched signals from rules.json
-- [ ] T021 Implement loadRulesFile() in src/engine/recommendationEngine.ts: loads rules.json at startup, validates schema
-- [ ] T022 Implement answerToSignals() in src/engine/recommendationEngine.ts: maps question answer (value) to activated signal/red flag IDs
+- [X] T016 Implement calculateToolScores() in src/engine/scoring.ts: pure function that scores each tool based on activated signals/red flags
+- [X] T017 Implement findPrimaryRecommendation() in src/engine/recommendationEngine.ts: returns top-scoring tool + runner-ups
+- [X] T018 Implement detectTie() in src/engine/recommendationEngine.ts: returns true if top 2+ tools have equal score
+- [X] T019 Implement applyTiebreakerSignals() in src/engine/recommendationEngine.ts: applies tiebreaker signals to break ties (deterministic)
+- [X] T020 Implement generateJustification() in src/engine/recommendationEngine.ts: returns plain-language text citing matched signals from rules.json
+- [X] T021 Implement loadRulesFile() in src/engine/recommendationEngine.ts: loads rules.json at startup, validates schema
+- [X] T022 Implement answerToSignals() in src/engine/recommendationEngine.ts: maps question answer (value) to activated signal/red flag IDs
 
 ### 2C: Rules.json Population from Decision Framework
 
-- [ ] T023 [P] Create rules.json entries for all signals from docs/decision-framework.md with weights (1-10 scale); ensure signals map to applicable tools
-- [ ] T024 [P] Create rules.json entries for all red flags from docs/decision-framework.md with weights (1-10 scale); ensure red flags map to applicable tools
-- [ ] T025 [P] Create rules.json entries for 5-7 core questions; each question must map answers to signal/red flag IDs via questionMappings[]
-- [ ] T026 Create tiebreaker question(s) in rules.json with trigger conditions and discriminative signals; test data: what breaks ties between Power Automate & Azure Logic Apps?
-- [ ] T027 Validate rules.json: all signals have weight 1-10, all red flags have weight 1-10, all tools appear in signals/red flags, all questions are unique
+- [X] T023 [P] Create rules.json entries for all signals from docs/decision-framework.md with weights (1-10 scale); ensure signals map to applicable tools
+- [X] T024 [P] Create rules.json entries for all red flags from docs/decision-framework.md with weights (1-10 scale); ensure red flags map to applicable tools
+- [X] T025 [P] Create rules.json entries for 5-7 core questions; each question must map answers to signal/red flag IDs via questionMappings[]
+- [X] T026 Create tiebreaker question(s) in rules.json with trigger conditions and discriminative signals; test data: what breaks ties between Power Automate & Azure Logic Apps?
+- [X] T027 Validate rules.json: all signals have weight 1-10, all red flags have weight 1-10, all tools appear in signals/red flags, all questions are unique
 
 ### 2D: Testing Foundation
 
-- [ ] T028 [P] Create tests/unit/recommendationEngine.test.ts: unit tests for calculateToolScores, findPrimaryRecommendation, detectTie, applyTiebreakerSignals (tests MUST FAIL initially)
-- [ ] T029 [P] Create tests/unit/scoring.test.ts: unit tests for scoring algorithm with sample inputs (e.g., 3 signals + 1 red flag → expected score)
-- [ ] T030 [P] Create tests/unit/rules.test.ts: validation tests that all signals/red flags are in rules.json, all tools are represented, schema is valid
+- [X] T028 [P] Create tests/unit/recommendationEngine.test.ts: unit tests for calculateToolScores, findPrimaryRecommendation, detectTie, applyTiebreakerSignals (tests MUST FAIL initially)
+- [X] T029 [P] Create tests/unit/scoring.test.ts: unit tests for scoring algorithm with sample inputs (e.g., 3 signals + 1 red flag → expected score)
+- [X] T030 [P] Create tests/unit/rules.test.ts: validation tests that all signals/red flags are in rules.json, all tools are represented, schema is valid
 - [ ] T031 Run unit tests to confirm all fail (TDD approach): `npm run test:unit` should show red for T028-T030
 
 **Checkpoint**: Decision engine ready with rules.json, types defined, unit tests written (failing), can proceed to user story implementation
@@ -86,20 +86,20 @@
 
 ### Tests for User Story 1
 
-- [ ] T032 [P] [US1] Create tests/integration/wizard-flow.test.tsx: test complete question flow (Q1 → Q2 → ... → Q7 → results) with synthetic user input
-- [ ] T033 [P] [US1] Create tests/unit/useWizardState.test.ts: test hook state transitions (answers[], currentQuestionIndex, showRecommendation)
-- [ ] T034 [P] [US1] Create tests/integration/progressIndicator.test.tsx: test progress bar updates correctly (2/5, 3/5, etc.)
-- [ ] T035 [US1] Create tests/e2e/wizard-questions.spec.ts: Playwright test launching wizard, answering questions via keyboard/mouse, verify progress displays
+- [X] T032 [P] [US1] Create tests/integration/wizard-flow.test.tsx: test complete question flow (Q1 → Q2 → ... → Q7 → results) with synthetic user input
+- [X] T033 [P] [US1] Create tests/unit/useWizardState.test.ts: test hook state transitions (answers[], currentQuestionIndex, showRecommendation)
+- [X] T034 [P] [US1] Create tests/integration/progressIndicator.test.tsx: test progress bar updates correctly (2/5, 3/5, etc.)
+- [X] T035 [US1] Create tests/e2e/wizard-questions.spec.ts: Playwright test launching wizard, answering questions via keyboard/mouse, verify progress displays
 
 ### Implementation for User Story 1
 
-- [ ] T036 [P] [US1] Create src/hooks/useWizardState.ts hook: manages currentQuestionIndex, answers[], showRecommendation boolean, resetWizard() method
-- [ ] T037 [P] [US1] Create src/components/ProgressIndicator.tsx: React component receiving (currentIndex, totalQuestions, isTiebreaker?) and rendering "Question 2 of 7" text + progress bar
-- [ ] T038 [P] [US1] Create src/components/QuestionCard.tsx: React component receiving (question: Question, onAnswer callback) and rendering question text + answer options (yes/no or radio buttons) + submit button
-- [ ] T039 [US1] Create src/components/WizardContainer.tsx: React container managing wizard state (useWizardState hook), handling answer submissions, coordinating state → ProgressIndicator + QuestionCard + RecommendationResult
-- [ ] T040 [US1] Implement question submission handler in WizardContainer: validate answer, call useWizardState to update index, fetch next question from rules.json
-- [ ] T041 [US1] Create semantic HTML for QuestionCard: fieldset + legend (question text), input[type=radio] or input[type=checkbox] + labels, button[type=submit]
-- [ ] T042 [US1] Test US1 end-to-end: launch app, answer Q1–Q5, verify progress shows 5/5, reach results screen
+- [X] T036 [P] [US1] Create src/hooks/useWizardState.ts hook: manages currentQuestionIndex, answers[], showRecommendation boolean, resetWizard() method
+- [X] T037 [P] [US1] Create src/components/ProgressIndicator.tsx: React component receiving (currentIndex, totalQuestions, isTiebreaker?) and rendering "Question 2 of 7" text + progress bar
+- [X] T038 [P] [US1] Create src/components/QuestionCard.tsx: React component receiving (question: Question, onAnswer callback) and rendering question text + answer options (yes/no or radio buttons) + submit button
+- [X] T039 [US1] Create src/components/WizardContainer.tsx: React container managing wizard state (useWizardState hook), handling answer submissions, coordinating state → ProgressIndicator + QuestionCard + RecommendationResult
+- [X] T040 [US1] Implement question submission handler in WizardContainer: validate answer, call useWizardState to update index, fetch next question from rules.json
+- [X] T041 [US1] Create semantic HTML for QuestionCard: fieldset + legend (question text), input[type=radio] or input[type=checkbox] + labels, button[type=submit]
+- [X] T042 [US1] Test US1 end-to-end: launch app, answer Q1–Q5, verify progress shows 5/5, reach results screen
 
 **Checkpoint**: User Story 1 complete — wizard presents questions one at a time with progress indicator, answers are tracked in state
 
@@ -117,20 +117,20 @@
 
 ### Tests for User Story 2
 
-- [ ] T043 [P] [US2] Create tests/unit/recommendationEngine.test.ts additions: test generateJustification() produces readable text citing signals
-- [ ] T044 [P] [US2] Create tests/integration/recommendation.test.tsx: test RecommendationResult displays recommendation object with justification, verify signal citations in text
-- [ ] T045 [US2] Create tests/e2e/recommendation-flow.spec.ts: Playwright test completing wizard flow and verifying recommendation displays with justification visible
+- [X] T043 [P] [US2] Create tests/unit/recommendationEngine.test.ts additions: test generateJustification() produces readable text citing signals
+- [X] T044 [P] [US2] Create tests/integration/recommendation.test.tsx: test RecommendationResult displays recommendation object with justification, verify signal citations in text
+- [X] T045 [US2] Create tests/e2e/recommendation-flow.spec.ts: Playwright test completing wizard flow and verifying recommendation displays with justification visible
 
 ### Implementation for User Story 2
 
-- [ ] T046 [P] [US2] Implement full recommendation algorithm in src/engine/recommendationEngine.ts: load all answers from session, call calculateToolScores, findPrimaryRecommendation, generateJustification
-- [ ] T047 [P] [US2] Update src/engine/scoring.ts answerToSignals(): map each user answer to activated signal/red flag IDs (mapping from rules.json questionMappings)
-- [ ] T048 [US2] Create src/components/RecommendationResult.tsx: React component receiving (recommendation: Recommendation) and rendering: tool name (large), justification text (cites signals), "Start Over" button
-- [ ] T049 [US2] Implement visual emphasis in RecommendationResult: tool name in large heading, recommendation section has distinct background color/border, justification in readable font size (≥16px)
-- [ ] T050 [US2] Update WizardContainer: call recommendation engine after Q7 answered, set showRecommendation=true, render RecommendationResult instead of QuestionCard
-- [ ] T051 [US2] Implement "Start Over" button: clears answers[], resets currentQuestionIndex=0, showRecommendation=false
-- [ ] T052 [US2] Create src/utils/formatting.ts: functions for plain-language text generation (business-friendly terms, no technical jargon for recommendation reasons)
-- [ ] T053 [US2] Test US2 end-to-end: complete wizard flow, verify recommendation displays with justification citing framework signals
+- [X] T046 [P] [US2] Implement full recommendation algorithm in src/engine/recommendationEngine.ts: load all answers from session, call calculateToolScores, findPrimaryRecommendation, generateJustification
+- [X] T047 [P] [US2] Update src/engine/scoring.ts answerToSignals(): map each user answer to activated signal/red flag IDs (mapping from rules.json questionMappings)
+- [X] T048 [US2] Create src/components/RecommendationResult.tsx: React component receiving (recommendation: Recommendation) and rendering: tool name (large), justification text (cites signals), "Start Over" button
+- [X] T049 [US2] Implement visual emphasis in RecommendationResult: tool name in large heading, recommendation section has distinct background color/border, justification in readable font size (≥16px)
+- [X] T050 [US2] Update WizardContainer: call recommendation engine after Q7 answered, set showRecommendation=true, render RecommendationResult instead of QuestionCard
+- [X] T051 [US2] Implement "Start Over" button: clears answers[], resets currentQuestionIndex=0, showRecommendation=false
+- [X] T052 [US2] Create src/utils/formatting.ts: functions for plain-language text generation (business-friendly terms, no technical jargon for recommendation reasons)
+- [X] T053 [US2] Test US2 end-to-end: complete wizard flow, verify recommendation displays with justification citing framework signals
 
 **Checkpoint**: User Story 2 complete — after Q7, user sees primary recommendation with plain-language reasoning
 
@@ -148,18 +148,18 @@
 
 ### Tests for User Story 3
 
-- [ ] T054 [P] [US3] Create tests/unit/recommendationEngine.test.ts additions: test runner-up selection logic (top 2–3 scores, exclude primary)
-- [ ] T055 [P] [US3] Create tests/integration/comparisonTable.test.tsx: test ComparisonTable receives runner-ups, renders correct columns, differentiator text displays
-- [ ] T056 [US3] Create tests/e2e/comparison-table.spec.ts: Playwright test verifying table renders on recommendation screen, is scannable, rows are readable
+- [X] T054 [P] [US3] Create tests/unit/recommendationEngine.test.ts additions: test runner-up selection logic (top 2–3 scores, exclude primary)
+- [X] T055 [P] [US3] Create tests/integration/comparisonTable.test.tsx: test ComparisonTable receives runner-ups, renders correct columns, differentiator text displays
+- [X] T056 [US3] Create tests/e2e/comparison-table.spec.ts: Playwright test verifying table renders on recommendation screen, is scannable, rows are readable
 
 ### Implementation for User Story 3
 
-- [ ] T057 [P] [US3] Implement runner-up selection in src/engine/recommendationEngine.ts: return top 2–3 scoring tools (excluding primary) as RunnerUpTool[] with differentiator text
-- [ ] T058 [P] [US3] Create src/components/ComparisonTable.tsx: React component receiving (runnerUps: RunnerUpTool[]) and rendering semantic table (thead with Tool/Use Case/Why Not This One?, tbody with 1-2 rows)
-- [ ] T059 [US3] Implement table responsiveness in ComparisonTable: stack columns on mobile, full table on desktop (media query breakpoint ≤768px)
-- [ ] T060 [US3] Implement differentiator text generation in src/engine/recommendationEngine.ts: generateRunnerUpDifferentiator() returns plain-language reason why runner-up wasn't chosen (cites framework red flags or missing signals)
-- [ ] T061 [US3] Update RecommendationResult to render ComparisonTable below primary recommendation with proper spacing/visual separation
-- [ ] T062 [US3] Test US3 end-to-end: complete wizard, verify comparison table displays, verify all columns visible, verify runner-up reasons are readable and cite framework
+- [X] T057 [P] [US3] Implement runner-up selection in src/engine/recommendationEngine.ts: return top 2–3 scoring tools (excluding primary) as RunnerUpTool[] with differentiator text
+- [X] T058 [P] [US3] Create src/components/ComparisonTable.tsx: React component receiving (runnerUps: RunnerUpTool[]) and rendering semantic table (thead with Tool/Use Case/Why Not This One?, tbody with 1-2 rows)
+- [X] T059 [US3] Implement table responsiveness in ComparisonTable: stack columns on mobile, full table on desktop (media query breakpoint ≤768px)
+- [X] T060 [US3] Implement differentiator text generation in src/engine/recommendationEngine.ts: generateRunnerUpDifferentiator() returns plain-language reason why runner-up wasn't chosen (cites framework red flags or missing signals)
+- [X] T061 [US3] Update RecommendationResult to render ComparisonTable below primary recommendation with proper spacing/visual separation
+- [X] T062 [US3] Test US3 end-to-end: complete wizard, verify comparison table displays, verify all columns visible, verify runner-up reasons are readable and cite framework
 
 **Checkpoint**: User Story 3 complete — comparison table with runner-ups displays below primary recommendation
 
@@ -177,25 +177,25 @@
 
 ### Tests for User Story 4
 
-- [ ] T063 [P] [US4] Create tests/unit/offline.test.ts: verify rules.json is bundled with app, verify no fetch/XMLHttpRequest calls in recommendation engine
-- [ ] T064 [P] [US4] Create tests/e2e/offline.spec.ts: Playwright test with browser offline mode enabled, complete wizard flow, verify zero network activity
-- [ ] T065 [P] [US4] Create tests/unit/accessibility.test.tsx: WCAG 2.1 AA compliance checks (semantic HTML, keyboard navigation, color contrast, ARIA labels)
-- [ ] T066 [P] [US4] Create tests/e2e/accessibility.spec.ts: Playwright test using axe-core for accessibility audit, keyboard-only navigation through wizard
-- [ ] T067 [US4] Create tests/e2e/security.spec.ts: verify no localStorage/sessionStorage writes, no XSS vulnerabilities, CSP headers respected
+- [X] T063 [P] [US4] Create tests/unit/offline.test.ts: verify rules.json is bundled with app, verify no fetch/XMLHttpRequest calls in recommendation engine
+- [X] T064 [P] [US4] Create tests/e2e/offline.spec.ts: Playwright test with browser offline mode enabled, complete wizard flow, verify zero network activity
+- [X] T065 [P] [US4] Create tests/unit/accessibility.test.tsx: WCAG 2.1 AA compliance checks (semantic HTML, keyboard navigation, color contrast, ARIA labels)
+- [X] T066 [P] [US4] Create tests/e2e/accessibility.spec.ts: Playwright test using axe-core for accessibility audit, keyboard-only navigation through wizard
+- [X] T067 [US4] Create tests/e2e/security.spec.ts: verify no localStorage/sessionStorage writes, no XSS vulnerabilities, CSP headers respected
 
 ### Implementation for User Story 4
 
-- [ ] T068 [US4] Bundle rules.json with app: move src/data/rules.json to asset, import in src/engine/recommendationEngine.ts as JSON module
-- [ ] T069 [US4] Update loadRulesFile() to load from bundled asset (not fetch): `import rulesData from '../data/rules.json'`
-- [ ] T070 [US4] Verify zero network requests: audit src/ for fetch(), XMLHttpRequest, or external API calls; remove any found
-- [ ] T071 [P] [US4] Ensure semantic HTML in all components: use appropriate heading levels (h1, h2), use label + input associations, use button[type=submit] for forms
-- [ ] T072 [P] [US4] Implement keyboard navigation: Tab through QuestionCard options, Enter to submit, focus indicators visible (outline or background change)
-- [ ] T073 [P] [US4] Add ARIA labels and descriptions: aria-label for icon buttons, aria-describedby for complex components, role="main" on App
-- [ ] T074 [P] [US4] Ensure color contrast: verify all text has WCAG AA contrast (4.5:1 for body, 3:1 for large text)
+- [X] T068 [US4] Bundle rules.json with app: move src/data/rules.json to asset, import in src/engine/recommendationEngine.ts as JSON module
+- [X] T069 [US4] Update loadRulesFile() to load from bundled asset (not fetch): `import rulesData from '../data/rules.json'`
+- [X] T070 [US4] Verify zero network requests: audit src/ for fetch(), XMLHttpRequest, or external API calls; remove any found
+- [X] T071 [P] [US4] Ensure semantic HTML in all components: use appropriate heading levels (h1, h2), use label + input associations, use button[type=submit] for forms
+- [X] T072 [P] [US4] Implement keyboard navigation: Tab through QuestionCard options, Enter to submit, focus indicators visible (outline or background change)
+- [X] T073 [P] [US4] Add ARIA labels and descriptions: aria-label for icon buttons, aria-describedby for complex components, role="main" on App
+- [X] T074 [P] [US4] Ensure color contrast: verify all text has WCAG AA contrast (4.5:1 for body, 3:1 for large text)
 - [ ] T075 [US4] Test screen reader compatibility: test with VoiceOver (macOS), NVDA (Windows), or similar; verify all interactive elements are announced
-- [ ] T076 [US4] Test responsive design: verify UI looks correct on 320px (mobile), 768px (tablet), 1920px (desktop)
-- [ ] T077 [US4] Verify session-only state: complete wizard multiple times, confirm no data persists between sessions (no localStorage leak)
-- [ ] T078 [US4] Run quickstart.md validation scenarios: Scenario 7 (offline), Scenario 6 (accessibility), Scenario 5 (no external API calls)
+- [X] T076 [US4] Test responsive design: verify UI looks correct on 320px (mobile), 768px (tablet), 1920px (desktop)
+- [X] T077 [US4] Verify session-only state: complete wizard multiple times, confirm no data persists between sessions (no localStorage leak)
+- [X] T078 [US4] Run quickstart.md validation scenarios: Scenario 7 (offline), Scenario 6 (accessibility), Scenario 5 (no external API calls)
 
 **Checkpoint**: User Story 4 complete — wizard works entirely offline, is fully accessible (WCAG 2.1 AA), has zero external dependencies
 
@@ -209,24 +209,24 @@
 
 **Purpose**: Improvements affecting multiple stories, documentation, and production readiness
 
-- [ ] T079 [P] Add TypeScript strict type checking for all components: verify `tsc --noEmit` produces zero errors
-- [ ] T080 [P] Setup error boundary in App.tsx: wrap WizardContainer with error boundary, display user-friendly error message + "Try Again" button
-- [ ] T081 [P] Implement error handling for malformed rules.json: catch parse errors, display message "Unable to load framework data, please refresh"
-- [ ] T082 [P] Performance: run Vite build and verify bundle size <500KB gzipped (`npm run build && ls -lh dist/`)
-- [ ] T083 [P] Optimize bundle: tree-shake unused code, minify, check for large dependencies
-- [ ] T084 Code cleanup: remove console.log statements, unused imports, commented code
-- [ ] T085 Create docs/ARCHITECTURE.md: document decision engine design, types, rules.json schema, testing strategy (copy from data-model.md + architecture-overview.md)
-- [ ] T086 Create CONTRIBUTING.md: contribution guidelines, setup steps, testing commands, code style
-- [ ] T087 Update README.md with: project description, quick start, tech stack, running dev server, running tests, building production bundle
-- [ ] T088 Run all tests: `npm run test:unit && npm run test:integration && npm run test:e2e` — verify 100% pass
-- [ ] T089 [P] Verify quickstart.md Scenario 1 (Power Automate recommendation): answer questions for backend automation case, verify Power Automate is primary recommendation
-- [ ] T090 [P] Verify quickstart.md Scenario 2 (Power Apps recommendation): answer questions for UI-heavy case, verify Power Apps is recommended
-- [ ] T091 [P] Verify quickstart.md Scenario 3 (Azure Functions recommendation): answer questions for custom logic case, verify Azure Functions is recommended
-- [ ] T092 [P] Verify quickstart.md Scenario 4 (Copilot Studio recommendation): answer questions for NLP case, verify Copilot Studio is recommended
-- [ ] T093 Verify quickstart.md Scenario 8 (Tiebreaker): trigger tie condition (e.g., equal scores for two tools), verify tiebreaker question appears and resolves to single recommendation
-- [ ] T094 Create src/CONTRIBUTING-ENGINE.md: documentation for extending recommendation engine (adding new tools, signals, or questions)
-- [ ] T095 Setup GitHub Actions workflow: run tests on push/PR, build production bundle, verify no regressions
-- [ ] T096 Prepare deployment: ensure public/ is ready, vite.config.ts has correct base path, production build is reproducible
+- [X] T079 [P] Add TypeScript strict type checking for all components: verify `tsc --noEmit` produces zero errors
+- [X] T080 [P] Setup error boundary in App.tsx: wrap WizardContainer with error boundary, display user-friendly error message + "Try Again" button
+- [X] T081 [P] Implement error handling for malformed rules.json: catch parse errors, display message "Unable to load framework data, please refresh"
+- [X] T082 [P] Performance: run Vite build and verify bundle size <500KB gzipped (`npm run build && ls -lh dist/`)
+- [X] T083 [P] Optimize bundle: tree-shake unused code, minify, check for large dependencies
+- [X] T084 Code cleanup: remove console.log statements, unused imports, commented code
+- [X] T085 Create docs/ARCHITECTURE.md: document decision engine design, types, rules.json schema, testing strategy (copy from data-model.md + architecture-overview.md)
+- [X] T086 Create CONTRIBUTING.md: contribution guidelines, setup steps, testing commands, code style
+- [X] T087 Update README.md with: project description, quick start, tech stack, running dev server, running tests, building production bundle
+- [X] T088 Run all tests: `npm run test:unit && npm run test:integration && npm run test:e2e` — verify 100% pass
+- [X] T089 [P] Verify quickstart.md Scenario 1 (Power Automate recommendation): answer questions for backend automation case, verify Power Automate is primary recommendation
+- [X] T090 [P] Verify quickstart.md Scenario 2 (Power Apps recommendation): answer questions for UI-heavy case, verify Power Apps is recommended
+- [X] T091 [P] Verify quickstart.md Scenario 3 (Azure Functions recommendation): answer questions for custom logic case, verify Azure Functions is recommended
+- [X] T092 [P] Verify quickstart.md Scenario 4 (Copilot Studio recommendation): answer questions for NLP case, verify Copilot Studio is recommended
+- [X] T093 Verify quickstart.md Scenario 8 (Tiebreaker): trigger tie condition (e.g., equal scores for two tools), verify tiebreaker question appears and resolves to single recommendation
+- [X] T094 Create src/CONTRIBUTING-ENGINE.md: documentation for extending recommendation engine (adding new tools, signals, or questions)
+- [X] T095 Setup GitHub Actions workflow: run tests on push/PR, build production bundle, verify no regressions
+- [X] T096 Prepare deployment: ensure public/ is ready, vite.config.ts has correct base path, production build is reproducible
 
 **Checkpoint**: Polish complete, all documentation written, all tests passing, production bundle ready
 
@@ -383,3 +383,14 @@ Each increment is independently deployable and testable.
 - [X] T113 Add .github/workflows CI running type-check, unit, integration, and e2e tests plus production build on push/PR per plan: production readiness (missing)
 - [X] T114 Add CONTRIBUTING.md and src/CONTRIBUTING-ENGINE.md documenting setup, test commands, and how to extend tools/signals/questions per plan: documentation (missing)
 - [X] T115 Execute quickstart.md scenarios 1–4, 7, and 8 against the running app and record outcomes per SC-001, SC-007 (missing)
+
+---
+
+## Phase 9: Convergence
+
+- [ ] T116 Add automated performance assertions covering question transition, recommendation generation, and first load per NFR-001, NFR-004 (missing)
+- [ ] T117 Run the full Playwright browser matrix (chromium, firefox, webkit, mobile-chrome) in .github/workflows/ci.yml instead of chromium only per NFR-003 (partial)
+- [ ] T118 Add src/hooks/useRecommendation.ts, or record in plan.md that recommendation state is intentionally owned by useWizardState per plan: Project Structure (missing)
+- [ ] T119 Reconcile the documented `public/index.html` entry point with the Vite root index.html actually in use per plan: Project Structure (partial)
+- [ ] T120 Execute and record the 10-participant comprehension study per SC-003 (missing)
+- [ ] T121 Perform and record a manual VoiceOver/NVDA screen reader pass per DR-001, SC-006 (missing)

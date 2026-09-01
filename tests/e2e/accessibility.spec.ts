@@ -49,13 +49,16 @@ test.describe('Accessibility audit (DR-001, SC-006)', () => {
 
   test('the whole wizard is operable with the keyboard only', async ({ page }) => {
     await page.goto('/');
+    await page.getByRole('radio').first().waitFor();
+    await page.locator('body').press('Tab');
+    await page.keyboard.press('Space');
 
-    for (let i = 0; i < UI_APP_PATH.length; i += 1) {
-      await page.keyboard.press('Tab');
-      await page.keyboard.press('Space');
+    for (let i = 1; i < UI_APP_PATH.length; i += 1) {
       await page.keyboard.press('Tab');
       await page.keyboard.press('Tab');
       await page.keyboard.press('Enter');
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Space');
     }
 
     await expect(page.getByRole('progressbar')).toBeVisible();

@@ -91,3 +91,37 @@ describe('rules.json schema validation (FR-013, SC-008)', () => {
     });
   });
 });
+
+describe('loadRulesFile rejects malformed data (FR-014)', () => {
+  it('throws on unparseable JSON', () => {
+    expect(() => loadRulesFile('{ not json')).toThrow(/Failed to parse/);
+  });
+
+  it('throws when required collections are missing', () => {
+    const broken = { ...rules, tools: undefined } as unknown as RulesFile;
+
+    expect(() => loadRulesFile(broken)).toThrow(/missing required fields/);
+  });
+
+  it('throws on an out-of-range signal weight', () => {
+    const broken: RulesFile = {
+      ...rules,
+      signals: [{ ...rules.signals[0], weight: 42 }, ...rules.signals.slice(1)],
+    };
+
+    expect(() => loadRulesFile(broken)).toThrow(/Invalid signal weight/);
+  });
+
+  it('throws on an out-of-range red flag weight', () => {
+    const broken: RulesFile = {
+      ...rules,
+      redFlags: [{ ...rules.redFlags[0], weight: 0 }, ...rules.redFlags.slice(1)],
+    };
+
+    expect(() => loadRulesFile(broken)).toThrow(/Invalid red flag weight/);
+  });
+
+  it('accepts a valid rules file parsed from a string', () => {
+    expect(() => loadRulesFile(JSON.stringify(rules))).not.toThrow();
+  });
+});

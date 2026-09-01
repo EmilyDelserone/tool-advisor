@@ -115,20 +115,19 @@ sequenceDiagram
 ```
 App (root)
 ├── ErrorBoundary
-│   └── WizardContainer (state: currentIndex, answers, recommendation, showTiebreaker)
-│       ├── ProgressIndicator (props: currentIndex, totalQuestions)
-│       ├── QuestionCard (props: question, onAnswer callback)
+│   └── WizardContainer (state via useWizardState: currentIndex, answers, tiebreakerQuestion, recommendation)
+│       ├── ProgressIndicator (props: currentIndex, totalQuestions, isTiebreaker)
+│       ├── QuestionCard (props: question, selectedValue, isLastQuestion, canGoBack, onSelect, onNext, onBack)
 │       │   ├── Question text
-│       │   ├── Options (radio, checkbox, etc.)
-│       │   └── Submit button
+│       │   ├── Radio options
+│       │   └── Back / Next (or "See recommendation") buttons
 │       └── RecommendationResult (props: recommendation, onRestart)
 │           ├── Primary tool section
 │           │   ├── Tool name (emphasized)
-│           │   ├── Justification text
-│           │   └── Metadata (questions answered, time)
+│           │   └── Justification text
 │           ├── ComparisonTable (props: runnerUps[])
 │           │   └── 1-2 runner-up tools with differentiation
-│           └── "Start Over" button
+│           └── "Start over" button
 ```
 
 ## Core Modules

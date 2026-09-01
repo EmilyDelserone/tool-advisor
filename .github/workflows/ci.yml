@@ -40,3 +40,6 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Bundle size budget
+        run: npm run check:size

@@ -45,8 +45,9 @@ test.describe('Wizard end-to-end (US1, US2, US3)', () => {
 
   test('supports keyboard-only navigation through a question', async ({ page }) => {
     await page.goto('/');
+    await page.getByRole('radio').first().waitFor();
 
-    await page.keyboard.press('Tab');
+    await page.locator('body').press('Tab');
     await page.keyboard.press('Space');
     await expect(page.getByRole('radio').first()).toBeChecked();
   });
