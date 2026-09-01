@@ -21,7 +21,9 @@ checking that the recommendation and comparison table render correctly.
 
 **End-to-end** tests run the production build in a real browser and cover the whole journey plus the
 constitutional guarantees: zero external requests, offline operation, no browser storage, WCAG 2.1 AA
-via axe-core, and responsive behaviour at 320/768/1920px.
+via axe-core, accessible-name coverage of every control via `ariaSnapshot()`, and responsive
+behaviour at 320/768/1920px. The `ariaSnapshot()` checks approximate what a screen reader announces;
+they narrow, but do not remove, the need for a manual VoiceOver/NVDA pass.
 
 ## Naming conventions
 

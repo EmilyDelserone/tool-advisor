@@ -1,9 +1,9 @@
 import {
   Button,
   Card,
-  Field,
   Radio,
   RadioGroup,
+  Text,
   makeStyles,
   tokens,
 } from '@fluentui/react-components';
@@ -28,6 +28,12 @@ const useStyles = makeStyles({
   },
   optionsCard: {
     padding: tokens.spacingVerticalL,
+  },
+  question: {
+    display: 'block',
+    fontSize: tokens.fontSizeBase500,
+    fontWeight: tokens.fontWeightSemibold,
+    marginBottom: tokens.spacingVerticalM,
   },
   options: {
     display: 'grid',
@@ -75,26 +81,30 @@ export function QuestionCard({
       }}
     >
       <Card className={styles.optionsCard}>
-        <Field label={{ children: <GlossaryText text={question.text} /> }} size="large">
-          <RadioGroup
-            className={styles.options}
-            name={question.id}
-            value={selectedValue ?? ''}
-            onChange={(_, data) => onSelect(data.value)}
-          >
-            {options.map((option) => {
-              // Trigger sits outside the <label> so opening it cannot select the radio
-              const entry = findGlossaryEntry(option.label);
+        <Text as="h2" className={styles.question}>
+          <GlossaryText text={question.text} />
+        </Text>
 
-              return (
-                <div className={styles.option} key={option.id}>
-                  <Radio value={option.id} label={option.label} />
-                  {entry ? <GlossaryTerm entry={entry} /> : null}
-                </div>
-              );
-            })}
-          </RadioGroup>
-        </Field>
+        <RadioGroup
+          className={styles.options}
+          name={question.id}
+          // Explicit label keeps inline glossary triggers out of the group's accessible name
+          aria-label={question.text}
+          value={selectedValue ?? ''}
+          onChange={(_, data) => onSelect(data.value)}
+        >
+          {options.map((option) => {
+            // Trigger sits outside the <label> so opening it cannot select the radio
+            const entry = findGlossaryEntry(option.label);
+
+            return (
+              <div className={styles.option} key={option.id}>
+                <Radio value={option.id} label={option.label} />
+                {entry ? <GlossaryTerm entry={entry} /> : null}
+              </div>
+            );
+          })}
+        </RadioGroup>
       </Card>
 
       <div className={styles.actions}>
