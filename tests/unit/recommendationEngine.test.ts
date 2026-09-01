@@ -35,30 +35,35 @@ describe('Recommendation Engine - Unit Tests', () => {
         name: 'Power Automate',
         description: 'Cloud-based automation without UI',
         primaryUseCase: 'Backend automation, scheduled workflows',
+        docsUrl: 'https://learn.microsoft.com/en-us/test/',
       },
       {
         id: 'power-apps',
         name: 'Power Apps',
         description: 'Low-code app development platform',
         primaryUseCase: 'Business apps with UI requirements',
+        docsUrl: 'https://learn.microsoft.com/en-us/test/',
       },
       {
         id: 'azure-functions',
         name: 'Azure Functions',
         description: 'Serverless compute for custom logic',
         primaryUseCase: 'Custom backend logic, API endpoints',
+        docsUrl: 'https://learn.microsoft.com/en-us/test/',
       },
       {
         id: 'azure-logic-apps',
         name: 'Azure Logic Apps',
         description: 'Enterprise workflow automation',
         primaryUseCase: 'Complex integrations, enterprise workflows',
+        docsUrl: 'https://learn.microsoft.com/en-us/test/',
       },
       {
         id: 'copilot-studio',
         name: 'Copilot Studio',
         description: 'AI-powered chatbot and NLP platform',
         primaryUseCase: 'Conversational AI, chatbots, natural language',
+        docsUrl: 'https://learn.microsoft.com/en-us/test/',
       },
     ];
 
@@ -284,32 +289,20 @@ describe('Recommendation Engine - Unit Tests', () => {
 
   describe('answerToSignals', () => {
     it('should map yes answer to UI requirement signals', () => {
-      const result = answerToSignals(
-        'q1-ui',
-        'yes',
-        mockQuestionMappings
-      );
+      const result = answerToSignals('q1-ui', 'yes', mockQuestionMappings);
       expect(result.signalIds).toContain('ui-required');
       expect(result.signalIds).toContain('cloud-connectors');
       expect(result.redFlagIds).toHaveLength(0);
     });
 
     it('should map no answer to backend automation signals', () => {
-      const result = answerToSignals(
-        'q1-ui',
-        'no',
-        mockQuestionMappings
-      );
+      const result = answerToSignals('q1-ui', 'no', mockQuestionMappings);
       expect(result.signalIds).toContain('backend-automation-only');
       expect(result.redFlagIds).toContain('needs-ui');
     });
 
     it('should return empty arrays for unmapped question', () => {
-      const result = answerToSignals(
-        'unknown-question',
-        'yes',
-        mockQuestionMappings
-      );
+      const result = answerToSignals('unknown-question', 'yes', mockQuestionMappings);
       expect(result.signalIds).toHaveLength(0);
       expect(result.redFlagIds).toHaveLength(0);
     });
@@ -520,10 +513,7 @@ describe('Recommendation Engine - Unit Tests', () => {
         },
       ];
 
-      const recommendation = findPrimaryRecommendation(
-        answers,
-        mockRulesFile
-      );
+      const recommendation = findPrimaryRecommendation(answers, mockRulesFile);
 
       expect(recommendation.primaryTool.id).toBe('power-automate');
       expect(recommendation.score).toBeGreaterThan(0);
@@ -541,10 +531,7 @@ describe('Recommendation Engine - Unit Tests', () => {
         },
       ];
 
-      const recommendation = findPrimaryRecommendation(
-        answers,
-        mockRulesFile
-      );
+      const recommendation = findPrimaryRecommendation(answers, mockRulesFile);
 
       expect(recommendation.primaryTool.id).toBe('power-apps');
       expect(recommendation.matchedSignalIds).toContain('ui-required');
@@ -568,10 +555,7 @@ describe('Recommendation Engine - Unit Tests', () => {
         },
       ];
 
-      const recommendation = findPrimaryRecommendation(
-        answers,
-        mockRulesFile
-      );
+      const recommendation = findPrimaryRecommendation(answers, mockRulesFile);
 
       expect(recommendation.primaryTool.id).toBe('azure-functions');
     });
@@ -587,10 +571,7 @@ describe('Recommendation Engine - Unit Tests', () => {
         },
       ];
 
-      const recommendation = findPrimaryRecommendation(
-        answers,
-        mockRulesFile
-      );
+      const recommendation = findPrimaryRecommendation(answers, mockRulesFile);
 
       expect(recommendation.primaryTool.id).toBe('copilot-studio');
     });
@@ -606,10 +587,7 @@ describe('Recommendation Engine - Unit Tests', () => {
         },
       ];
 
-      const recommendation = findPrimaryRecommendation(
-        answers,
-        mockRulesFile
-      );
+      const recommendation = findPrimaryRecommendation(answers, mockRulesFile);
 
       expect(recommendation.runnerUps).toBeDefined();
       expect(recommendation.runnerUps.length).toBeGreaterThanOrEqual(1);
@@ -621,7 +599,7 @@ describe('Recommendation Engine - Unit Tests', () => {
       // For now, we're testing the structure is present
       const answers: Answer[] = [];
       const recommendation = findPrimaryRecommendation(answers, mockRulesFile);
-      
+
       expect(recommendation).toHaveProperty('primaryTool');
       expect(recommendation).toHaveProperty('score');
       expect(recommendation).toHaveProperty('justification');
@@ -798,7 +776,9 @@ describe('Recommendation Engine - Unit Tests', () => {
       expect(recommendation.primaryTool.id).toBe('power-apps');
       const justificationText = recommendation.justification.toLowerCase();
       expect(
-        justificationText.includes('ui') || justificationText.includes('user') || justificationText.includes('interface')
+        justificationText.includes('ui') ||
+          justificationText.includes('user') ||
+          justificationText.includes('interface')
       ).toBe(true);
     });
   });

@@ -5,31 +5,36 @@
       "id": "power-automate",
       "name": "Power Automate",
       "description": "Low-code workflow automation",
-      "primaryUseCase": "Business process automation"
+      "primaryUseCase": "Business process automation",
+      "docsUrl": "https://learn.microsoft.com/en-us/power-automate/"
     },
     {
       "id": "power-apps",
       "name": "Power Apps",
       "description": "Low-code app development",
-      "primaryUseCase": "User-facing business apps"
+      "primaryUseCase": "User-facing business apps",
+      "docsUrl": "https://learn.microsoft.com/en-us/power-apps/"
     },
     {
       "id": "copilot-studio",
       "name": "Copilot Studio",
       "description": "Conversational AI and chatbots",
-      "primaryUseCase": "Natural-language assistant experiences"
+      "primaryUseCase": "Natural-language assistant experiences",
+      "docsUrl": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/"
     },
     {
       "id": "azure-logic-apps",
       "name": "Azure Logic Apps",
       "description": "Enterprise integration workflows",
-      "primaryUseCase": "Complex integration and enterprise automation"
+      "primaryUseCase": "Complex integration and enterprise automation",
+      "docsUrl": "https://learn.microsoft.com/en-us/azure/logic-apps/"
     },
     {
       "id": "azure-functions",
       "name": "Azure Functions",
       "description": "Serverless custom logic",
-      "primaryUseCase": "Custom code and event-driven compute"
+      "primaryUseCase": "Custom code and event-driven compute",
+      "docsUrl": "https://learn.microsoft.com/en-us/azure/azure-functions/"
     }
   ],
   "signals": [

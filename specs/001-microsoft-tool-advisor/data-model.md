@@ -18,6 +18,7 @@ A Microsoft cloud tool that can be recommended to users.
 | `name` | string | Yes | Display name (e.g., "Power Automate") |
 | `description` | string | Yes | One-sentence description |
 | `primaryUseCase` | string | Yes | Main scenario (e.g., "Backend automation without UI") |
+| `docsUrl` | string | Yes | Absolute URL to the tool's official Microsoft Learn documentation |
 
 Tools do not carry signal or red flag lists; the relationship is expressed on the signal/red flag side via `applicableTools`.
 

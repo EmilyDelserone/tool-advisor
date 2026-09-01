@@ -26,6 +26,20 @@ describe('rules.json schema validation (FR-013, SC-008)', () => {
     });
   });
 
+  it('points every tool at official Microsoft Learn documentation (FR-018)', () => {
+    const expected: Record<string, string> = {
+      'power-automate': 'https://learn.microsoft.com/en-us/power-automate/',
+      'power-apps': 'https://learn.microsoft.com/en-us/power-apps/',
+      'copilot-studio': 'https://learn.microsoft.com/en-us/microsoft-copilot-studio/',
+      'azure-logic-apps': 'https://learn.microsoft.com/en-us/azure/logic-apps/',
+      'azure-functions': 'https://learn.microsoft.com/en-us/azure/azure-functions/',
+    };
+
+    rules.tools.forEach((tool) => {
+      expect(tool.docsUrl).toBe(expected[tool.id]);
+    });
+  });
+
   it('keeps all signal and red flag weights within 1-10', () => {
     [...rules.signals, ...rules.redFlags].forEach((item) => {
       expect(item.weight).toBeGreaterThanOrEqual(1);

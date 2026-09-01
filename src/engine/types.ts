@@ -8,6 +8,7 @@ export interface Tool {
   name: string;
   description: string;
   primaryUseCase: string;
+  docsUrl: string;
 }
 
 export interface Signal {

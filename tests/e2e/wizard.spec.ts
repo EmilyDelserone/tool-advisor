@@ -20,6 +20,32 @@ test.describe('Wizard end-to-end (US1, US2, US3)', () => {
     await expect(page.getByRole('columnheader', { name: /why not this one/i })).toBeVisible();
   });
 
+  test('links the winner and every runner-up to Microsoft Learn in a new tab', async ({ page }) => {
+    await page.goto('/');
+    await walkPath(page, UI_APP_PATH);
+
+    await expect(page.getByText('Learn more', { exact: true })).toBeVisible();
+
+    const winnerLink = page.getByRole('link', { name: /Power Apps documentation/i });
+    await expect(winnerLink).toHaveAttribute(
+      'href',
+      'https://learn.microsoft.com/en-us/power-apps/'
+    );
+    await expect(winnerLink).toHaveAttribute('target', '_blank');
+    await expect(winnerLink).toHaveAttribute('rel', /noopener/);
+
+    const runnerUpLinks = page.getByRole('link', { name: /learn more about/i });
+    const count = await runnerUpLinks.count();
+    expect(count).toBeGreaterThanOrEqual(1);
+
+    for (let i = 0; i < count; i += 1) {
+      const link = runnerUpLinks.nth(i);
+      await expect(link).toHaveAttribute('href', /^https:\/\/learn\.microsoft\.com\//);
+      await expect(link).toHaveAttribute('target', '_blank');
+      await expect(link).toHaveAttribute('rel', /noreferrer/);
+    }
+  });
+
   test('presents the tiebreaker question when tools tie and resolves to one tool', async ({ page }) => {
     await page.goto('/');
     await walkPath(page, TIE_PATH);

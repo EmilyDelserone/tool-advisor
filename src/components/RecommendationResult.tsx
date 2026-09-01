@@ -1,4 +1,4 @@
-import { Button, Card, Text, Title1, makeStyles, tokens } from '@fluentui/react-components';
+import { Button, Card, Link, Text, Title1, makeStyles, tokens } from '@fluentui/react-components';
 import type { Recommendation } from '../engine/types';
 import { ComparisonTable } from './ComparisonTable';
 import { GlossaryText } from './GlossaryText';
@@ -33,6 +33,17 @@ const useStyles = makeStyles({
   actions: {
     marginTop: tokens.spacingVerticalL,
   },
+  learnMore: {
+    marginTop: tokens.spacingVerticalL,
+    paddingTop: tokens.spacingVerticalM,
+    borderTop: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke2}`,
+    display: 'grid',
+    gap: tokens.spacingVerticalXS,
+    justifyItems: 'start',
+  },
+  learnMoreHeading: {
+    fontWeight: tokens.fontWeightBold,
+  },
   // DR-002 requires a 44px minimum touch target; Fluent's default is 32px
   button: {
     minHeight: '44px',
@@ -52,6 +63,17 @@ export function RecommendationResult({ recommendation, onRestart }: Recommendati
         <Text size={400} className={styles.justification}>
           <GlossaryText text={recommendation.justification} />
         </Text>
+
+        <div className={styles.learnMore}>
+          <Text className={styles.learnMoreHeading}>Learn more</Text>
+          <Link
+            href={recommendation.primaryTool.docsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {recommendation.primaryTool.name} documentation on Microsoft Learn (opens in a new tab)
+          </Link>
+        </div>
 
         <div className={styles.actions}>
           <Button

@@ -3,8 +3,20 @@ import { scoreTools } from '../../src/utils/scoring';
 import type { RedFlag, Signal, Tool } from '../../src/engine/types';
 
 const tools: Tool[] = [
-  { id: 'tool-a', name: 'Tool A', description: 'A', primaryUseCase: 'A cases' },
-  { id: 'tool-b', name: 'Tool B', description: 'B', primaryUseCase: 'B cases' },
+  {
+    id: 'tool-a',
+    name: 'Tool A',
+    description: 'A',
+    primaryUseCase: 'A cases',
+    docsUrl: 'https://learn.microsoft.com/en-us/test/',
+  },
+  {
+    id: 'tool-b',
+    name: 'Tool B',
+    description: 'B',
+    primaryUseCase: 'B cases',
+    docsUrl: 'https://learn.microsoft.com/en-us/test/',
+  },
 ];
 
 const signals: Signal[] = [

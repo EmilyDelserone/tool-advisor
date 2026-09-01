@@ -1,4 +1,5 @@
 import {
+  Link,
   Table,
   TableBody,
   TableCell,
@@ -26,6 +27,14 @@ const useStyles = makeStyles({
   },
   scroll: {
     overflowX: 'auto',
+  },
+  toolCell: {
+    display: 'grid',
+    gap: tokens.spacingVerticalXXS,
+    justifyItems: 'start',
+  },
+  toolName: {
+    fontWeight: tokens.fontWeightSemibold,
   },
 });
 
@@ -67,7 +76,12 @@ export function ComparisonTable({ runnerUps }: ComparisonTableProps) {
             {runnerUps.map(({ tool, differentiationText }) => (
               <TableRow role="row" key={tool.id}>
                 <TableCell role="cell" data-label="Tool">
-                  {tool.name}
+                  <span className={styles.toolCell}>
+                    <span className={styles.toolName}>{tool.name}</span>
+                    <Link href={tool.docsUrl} target="_blank" rel="noopener noreferrer">
+                      Learn more about {tool.name} (opens in a new tab)
+                    </Link>
+                  </span>
                 </TableCell>
                 <TableCell role="cell" data-label="Use case">
                   <GlossaryText text={tool.primaryUseCase} />

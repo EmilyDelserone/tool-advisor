@@ -124,6 +124,8 @@ The entire tool advisor experience — questions, decision logic, recommendation
 - **FR-014**: If `rules.json` fails schema validation at startup, the system MUST display "Unable to load framework data, please refresh" instead of the wizard. Any other runtime error MUST be caught by an error boundary that offers a "Try again" action. No error path may transmit data off the device
 - **FR-015**: There is no minimum confidence threshold — a recommendation is always produced. When the primary tool's `netScore` is 10 or lower, the justification MUST include a caveat that the answers are only a partial match and the alternatives are worth reviewing
 - **FR-016**: `rules.json` is bundled into the application at build time. Framework changes take effect only after a redeploy and a page reload; content-hashed asset filenames ensure browsers do not serve a stale bundle. No real-time sync is required
+- **FR-017**: Every tool definition in `rules.json` MUST carry a `docsUrl` pointing at that tool's official Microsoft Learn documentation
+- **FR-018**: The results view MUST offer a "Learn more" link to the recommended tool's official documentation, and one link per runner-up in the comparison table. Links MUST open in a new tab with `rel="noopener noreferrer"` and MUST name their destination for screen reader users
 
 ### Design & Usability Requirements
 

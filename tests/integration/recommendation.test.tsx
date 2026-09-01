@@ -82,4 +82,32 @@ describe('Recommendation result (US2, US3)', () => {
   it('keeps the justification within 60 words (FR-006a)', () => {
     expect(recommendation.justification.trim().split(/\s+/).length).toBeLessThanOrEqual(60);
   });
+
+  it('links the recommended tool to its official documentation in a new tab (FR-018)', () => {
+    render(<RecommendationResult recommendation={recommendation} onRestart={() => {}} />);
+
+    expect(screen.getByText('Learn more')).toBeTruthy();
+
+    const link = screen.getByRole('link', {
+      name: new RegExp(`${recommendation.primaryTool.name} documentation`, 'i'),
+    });
+
+    expect(link.getAttribute('href')).toBe(recommendation.primaryTool.docsUrl);
+    expect(link.getAttribute('target')).toBe('_blank');
+    expect(link.getAttribute('rel')).toContain('noopener');
+  });
+
+  it('links every runner-up to its official documentation (FR-018)', () => {
+    render(<RecommendationResult recommendation={recommendation} onRestart={() => {}} />);
+
+    recommendation.runnerUps.forEach(({ tool }) => {
+      const link = screen.getByRole('link', {
+        name: new RegExp(`learn more about ${tool.name}`, 'i'),
+      });
+
+      expect(link.getAttribute('href')).toBe(tool.docsUrl);
+      expect(link.getAttribute('target')).toBe('_blank');
+      expect(link.getAttribute('rel')).toContain('noreferrer');
+    });
+  });
 });
