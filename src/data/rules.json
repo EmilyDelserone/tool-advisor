@@ -1,0 +1,210 @@
+{
+  "version": "1.0.0",
+  "tools": [
+    {
+      "id": "power-automate",
+      "name": "Power Automate",
+      "description": "Low-code workflow automation",
+      "primaryUseCase": "Business process automation"
+    },
+    {
+      "id": "power-apps",
+      "name": "Power Apps",
+      "description": "Low-code app development",
+      "primaryUseCase": "User-facing business apps"
+    },
+    {
+      "id": "copilot-studio",
+      "name": "Copilot Studio",
+      "description": "Conversational AI and chatbots",
+      "primaryUseCase": "Natural-language assistant experiences"
+    },
+    {
+      "id": "azure-logic-apps",
+      "name": "Azure Logic Apps",
+      "description": "Enterprise integration workflows",
+      "primaryUseCase": "Complex integration and enterprise automation"
+    },
+    {
+      "id": "azure-functions",
+      "name": "Azure Functions",
+      "description": "Serverless custom logic",
+      "primaryUseCase": "Custom code and event-driven compute"
+    }
+  ],
+  "signals": [
+    {
+      "id": "backend-automation-only",
+      "text": "Backend automation, no UI needed",
+      "weight": 9,
+      "applicableTools": ["power-automate", "azure-logic-apps"]
+    },
+    {
+      "id": "ui-required",
+      "text": "Need UI for end users",
+      "weight": 8,
+      "applicableTools": ["power-apps"]
+    },
+    {
+      "id": "custom-code-logic",
+      "text": "Need custom code and complex logic",
+      "weight": 8,
+      "applicableTools": ["azure-functions"]
+    },
+    {
+      "id": "scheduled-process",
+      "text": "Scheduled or event-driven process",
+      "weight": 7,
+      "applicableTools": ["power-automate", "azure-logic-apps"]
+    },
+    {
+      "id": "cloud-connectors",
+      "text": "Need pre-built cloud connectors",
+      "weight": 6,
+      "applicableTools": ["power-automate", "power-apps", "azure-logic-apps"]
+    },
+    {
+      "id": "enterprise-integration",
+      "text": "Complex enterprise integration",
+      "weight": 8,
+      "applicableTools": ["azure-logic-apps"]
+    },
+    {
+      "id": "natural-language-ai",
+      "text": "Natural language processing",
+      "weight": 9,
+      "applicableTools": ["copilot-studio"]
+    },
+    {
+      "id": "conversational-interface",
+      "text": "Conversational AI interface",
+      "weight": 9,
+      "applicableTools": ["copilot-studio"]
+    }
+  ],
+  "redFlags": [
+    {
+      "id": "needs-ui",
+      "text": "Need UI for users",
+      "weight": 9,
+      "applicableTools": ["power-automate", "azure-functions", "azure-logic-apps"]
+    },
+    {
+      "id": "no-ui-needed",
+      "text": "No UI needed",
+      "weight": 8,
+      "applicableTools": ["power-apps"]
+    },
+    {
+      "id": "simple-automation",
+      "text": "Simple low-code automation",
+      "weight": 7,
+      "applicableTools": ["azure-functions"]
+    },
+    {
+      "id": "not-conversational",
+      "text": "Not conversational interface",
+      "weight": 9,
+      "applicableTools": ["copilot-studio"]
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1-ui",
+      "text": "Does your solution need a UI for end users?",
+      "type": "yes-no",
+      "position": 1
+    },
+    {
+      "id": "q2-custom-code",
+      "text": "Do you need custom code for business logic?",
+      "type": "yes-no",
+      "position": 2
+    },
+    {
+      "id": "q3-integration",
+      "text": "Are you integrating multiple systems?",
+      "type": "yes-no",
+      "position": 3
+    },
+    {
+      "id": "q4-scheduled",
+      "text": "Is this a scheduled or event-driven process?",
+      "type": "yes-no",
+      "position": 4
+    },
+    {
+      "id": "q5-nlp",
+      "text": "Do you need natural language processing or chatbot?",
+      "type": "yes-no",
+      "position": 5
+    }
+  ],
+  "questionMappings": [
+    {
+      "questionId": "q1-ui",
+      "answerValue": "yes",
+      "activatedSignalIds": ["ui-required", "cloud-connectors"],
+      "activatedRedFlagIds": []
+    },
+    {
+      "questionId": "q1-ui",
+      "answerValue": "no",
+      "activatedSignalIds": ["backend-automation-only"],
+      "activatedRedFlagIds": ["needs-ui"]
+    },
+    {
+      "questionId": "q2-custom-code",
+      "answerValue": "yes",
+      "activatedSignalIds": ["custom-code-logic"],
+      "activatedRedFlagIds": []
+    },
+    {
+      "questionId": "q2-custom-code",
+      "answerValue": "no",
+      "activatedSignalIds": [],
+      "activatedRedFlagIds": ["simple-automation"]
+    },
+    {
+      "questionId": "q3-integration",
+      "answerValue": "yes",
+      "activatedSignalIds": ["enterprise-integration", "cloud-connectors"],
+      "activatedRedFlagIds": []
+    },
+    {
+      "questionId": "q3-integration",
+      "answerValue": "no",
+      "activatedSignalIds": [],
+      "activatedRedFlagIds": []
+    },
+    {
+      "questionId": "q4-scheduled",
+      "answerValue": "yes",
+      "activatedSignalIds": ["scheduled-process"],
+      "activatedRedFlagIds": []
+    },
+    {
+      "questionId": "q4-scheduled",
+      "answerValue": "no",
+      "activatedSignalIds": [],
+      "activatedRedFlagIds": []
+    },
+    {
+      "questionId": "q5-nlp",
+      "answerValue": "yes",
+      "activatedSignalIds": ["natural-language-ai", "conversational-interface"],
+      "activatedRedFlagIds": []
+    },
+    {
+      "questionId": "q5-nlp",
+      "answerValue": "no",
+      "activatedSignalIds": [],
+      "activatedRedFlagIds": ["not-conversational"]
+    }
+  ],
+  "tiebreakers": [],
+  "metadata": {
+    "lastUpdated": "2026-09-01",
+    "frameworkVersion": "1.0.0"
+  }
+}
