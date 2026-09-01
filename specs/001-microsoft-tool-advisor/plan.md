@@ -80,45 +80,68 @@ specs/001-microsoft-tool-advisor/
 ### Source Code (repository root)
 
 ```text
+index.html                            # Vite entry point (repo root, not public/)
+
 src/
+├── App.tsx                           # Loads/validates rules, renders ErrorBoundary + WizardContainer
 ├── components/
 │   ├── WizardContainer.tsx
 │   ├── QuestionCard.tsx
 │   ├── ProgressIndicator.tsx
 │   ├── RecommendationResult.tsx
 │   ├── ComparisonTable.tsx
-│   └── App.tsx
+│   └── ErrorBoundary.tsx
 ├── engine/
 │   ├── recommendationEngine.ts       # Pure functions, no React dependency
-│   ├── types.ts
-│   └── rules.json
+│   └── types.ts
 ├── data/
 │   └── rules.json                    # Framework definitions (curated from docs/decision-framework.md)
 ├── hooks/
-│   ├── useWizardState.ts
-│   └── useRecommendation.ts
+│   └── useWizardState.ts             # Owns wizard *and* recommendation state
 ├── utils/
 │   ├── scoring.ts
 │   └── formatting.ts
+├── index.css
 └── main.tsx
 
 tests/
+├── setup.ts
 ├── unit/
 │   ├── recommendationEngine.test.ts
 │   ├── scoring.test.ts
-│   └── rules.test.ts
+│   ├── rules.test.ts
+│   ├── useWizardState.test.ts
+│   ├── accessibility.test.tsx
+│   ├── offline.test.ts
+│   └── quickstart-scenarios.test.ts
 ├── integration/
 │   ├── wizard-flow.test.tsx
-│   └── recommendation.test.tsx
+│   ├── recommendation.test.tsx
+│   └── progressIndicator.test.tsx
 └── e2e/
-    └── wizard.spec.ts
+    ├── helpers.ts
+    ├── wizard.spec.ts
+    ├── offline.spec.ts
+    ├── accessibility.spec.ts
+    ├── security.spec.ts
+    ├── responsive.spec.ts
+    └── performance.spec.ts
+
+scripts/
+└── check-bundle-size.mjs              # Enforces NFR-002
 
 docs/
-├── architecture-overview.md          # Phase 1 output
-└── decision-framework.md             # Existing
-
-public/
-└── index.html
+├── architecture-overview.md
+├── decision-framework.md
+├── testing-guidelines.md
+└── coding-guidelines.md
 ```
 
-**Structure Decision**: Single React + Vite application (no backend). The `engine/` directory contains pure JavaScript functions for the recommendation algorithm, decoupled from React components for testability. The `data/rules.json` file holds framework definitions curated from `docs/decision-framework.md`. All application state is managed in React hooks and component state; no persistence layer.
+**Structure Decision**: Single React + Vite application (no backend). The `engine/` directory contains pure TypeScript functions for the recommendation algorithm, decoupled from React components for testability. The `data/rules.json` file holds framework definitions curated from `docs/decision-framework.md`. All application state is managed in React hooks and component state; no persistence layer.
+
+**Deviations from the original sketch** (recorded rather than "fixed", because the shipped shape is the better one):
+
+- **No `src/engine/rules.json`**: framework data lives only in `src/data/rules.json`, per FR-013. A second copy would violate the single-source-of-truth principle.
+- **No `src/hooks/useRecommendation.ts`**: recommendation state is produced by the same transition that consumes the final answer, so splitting it from `useWizardState` would mean two hooks sharing one piece of state. `useWizardState` returns `recommendation` directly.
+- **`index.html` at the repository root, not `public/index.html`**: this is the Vite convention — the root HTML file is the build entry point and is processed for asset injection, whereas `public/` is for files copied verbatim. `public/` is retained but empty.
+- **`src/App.tsx`, not `src/components/App.tsx`**: `App` is the composition root rather than a presentational component.

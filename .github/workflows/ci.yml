@@ -33,10 +33,10 @@ jobs:
         run: npm run test:integration
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: End-to-end tests
-        run: npx playwright test --project=chromium
+        run: npm run test:e2e
 
       - name: Build
         run: npm run build

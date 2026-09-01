@@ -388,9 +388,9 @@ Each increment is independently deployable and testable.
 
 ## Phase 9: Convergence
 
-- [ ] T116 Add automated performance assertions covering question transition, recommendation generation, and first load per NFR-001, NFR-004 (missing)
-- [ ] T117 Run the full Playwright browser matrix (chromium, firefox, webkit, mobile-chrome) in .github/workflows/ci.yml instead of chromium only per NFR-003 (partial)
-- [ ] T118 Add src/hooks/useRecommendation.ts, or record in plan.md that recommendation state is intentionally owned by useWizardState per plan: Project Structure (missing)
-- [ ] T119 Reconcile the documented `public/index.html` entry point with the Vite root index.html actually in use per plan: Project Structure (partial)
+- [X] T116 Add automated performance assertions covering question transition, recommendation generation, and first load per NFR-001, NFR-004 (missing)
+- [X] T117 Run the full Playwright browser matrix (chromium, firefox, webkit, mobile-chrome) in .github/workflows/ci.yml instead of chromium only per NFR-003 (partial)
+- [X] T118 Add src/hooks/useRecommendation.ts, or record in plan.md that recommendation state is intentionally owned by useWizardState per plan: Project Structure (missing)
+- [X] T119 Reconcile the documented `public/index.html` entry point with the Vite root index.html actually in use per plan: Project Structure (partial)
 - [ ] T120 Execute and record the 10-participant comprehension study per SC-003 (missing)
 - [ ] T121 Perform and record a manual VoiceOver/NVDA screen reader pass per DR-001, SC-006 (missing)

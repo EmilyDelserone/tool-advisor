@@ -72,4 +72,14 @@ describe('scoreTools (FR-004a)', () => {
 
     expect(signals).toEqual(signalsCopy);
   });
+
+  it('scores 1000 runs well inside the 100ms interaction budget (NFR-001)', () => {
+    const started = performance.now();
+
+    for (let i = 0; i < 1000; i += 1) {
+      scoreTools(['s1', 's2', 's3'], ['r1', 'r2'], signals, redFlags, tools);
+    }
+
+    expect(performance.now() - started).toBeLessThan(100);
+  });
 });
