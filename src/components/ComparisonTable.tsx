@@ -1,49 +1,83 @@
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+  Title2,
+  makeStyles,
+  tokens,
+} from '@fluentui/react-components';
 import type { RunnerUpTool } from '../engine/types';
 
 type ComparisonTableProps = {
   runnerUps: RunnerUpTool[];
 };
 
+const useStyles = makeStyles({
+  section: {
+    marginTop: tokens.spacingVerticalXXL,
+  },
+  heading: {
+    display: 'block',
+    marginBottom: tokens.spacingVerticalM,
+  },
+  scroll: {
+    overflowX: 'auto',
+  },
+});
+
 export function ComparisonTable({ runnerUps }: ComparisonTableProps) {
+  const styles = useStyles();
+
   if (!runnerUps.length) {
     return null;
   }
 
   return (
-    <section className="comparison" aria-labelledby="comparison-heading">
-      <h2 id="comparison-heading">Runner-up options</h2>
-      <div className="comparison-scroll">
+    <section className={styles.section} aria-labelledby="comparison-heading">
+      <Title2 as="h2" id="comparison-heading" className={styles.heading}>
+        Runner-up options
+      </Title2>
+      {/* tabIndex keeps the horizontally scrollable region reachable by keyboard */}
+      <div
+        className={styles.scroll}
+        tabIndex={0}
+        role="region"
+        aria-labelledby="comparison-heading"
+      >
         {/* Explicit roles keep table semantics when rows stack on small screens */}
-        <table className="comparison-table" role="table">
-          <thead>
-            <tr role="row">
-              <th role="columnheader" scope="col">
+        <Table className="comparison-table" role="table" aria-label="Runner-up comparison">
+          <TableHeader>
+            <TableRow role="row">
+              <TableHeaderCell role="columnheader" scope="col">
                 Tool
-              </th>
-              <th role="columnheader" scope="col">
+              </TableHeaderCell>
+              <TableHeaderCell role="columnheader" scope="col">
                 Use case
-              </th>
-              <th role="columnheader" scope="col">
+              </TableHeaderCell>
+              <TableHeaderCell role="columnheader" scope="col">
                 Why not this one?
-              </th>
-            </tr>
-          </thead>
-          <tbody>
+              </TableHeaderCell>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {runnerUps.map(({ tool, differentiationText }) => (
-              <tr role="row" key={tool.id}>
-                <td role="cell" data-label="Tool">
+              <TableRow role="row" key={tool.id}>
+                <TableCell role="cell" data-label="Tool">
                   {tool.name}
-                </td>
-                <td role="cell" data-label="Use case">
+                </TableCell>
+                <TableCell role="cell" data-label="Use case">
                   {tool.primaryUseCase}
-                </td>
-                <td role="cell" data-label="Why not this one?">
+                </TableCell>
+                <TableCell role="cell" data-label="Why not this one?">
                   {differentiationText}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </section>
   );

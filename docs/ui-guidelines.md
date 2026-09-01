@@ -1,0 +1,78 @@
+# UI Guidelines
+
+These guidelines govern the presentation layer of the Microsoft Tool Advisor. They sit alongside
+[coding-guidelines.md](coding-guidelines.md) (formatting, imports, DRY) and
+[testing-guidelines.md](testing-guidelines.md), and they must be read together with the design
+requirements DR-001 to DR-008 in `specs/001-microsoft-tool-advisor/spec.md`.
+
+## Component library
+
+The app uses **Fluent UI React v9** (`@fluentui/react-components`) with its **default theme**.
+
+- Wrap the application once in `FluentProvider` using `webLightTheme`. Do not fork, extend, or
+  hand-roll the theme; if a colour or spacing value is needed, take it from the theme tokens
+  (`tokens.colorNeutralForeground1`, `tokens.spacingVerticalM`, and so on) rather than a literal.
+- Prefer a Fluent component over custom markup whenever one exists: `Card`, `Button`, `RadioGroup`,
+  `Radio`, `Field`, `ProgressBar`, `Table`, `Text`, `Title1`/`Title2`/`Body1`.
+- Use `makeStyles` / `mergeClasses` from `@fluentui/react-components` for component-scoped styles.
+  Inline `style` props are reserved for genuinely dynamic values.
+- Fluent's defaults already satisfy WCAG 2.1 AA contrast and focus indicators. If you find yourself
+  overriding focus or colour, stop — you are probably about to break DR-001.
+
+## Wizard layout
+
+The wizard is a **stepper**: exactly one question on screen at a time.
+
+- **One question per step.** Never show two questions simultaneously, and never reveal the next
+  question before the current one is answered.
+- **Progress indicator** above the question, always visible. It states `Question X of Y` (or
+  `Tiebreaker question X of Y`) with percent complete, and uses Fluent's `ProgressBar` so the
+  `progressbar` role and `aria-valuenow`/`aria-valuemin`/`aria-valuemax` come for free. The textual
+  label sits in an `aria-live="polite"` region.
+- **Back / Next controls** at the foot of the card, Back on the left as a `secondary` button, Next on
+  the right as the `primary` button. Next is disabled until an option is selected; Back is disabled on
+  the first question. On the final question Next reads **See recommendation**.
+- **Options are radios.** Use `RadioGroup` with one `Radio` per option so keyboard and screen reader
+  behaviour is Fluent's, not ours. The question text is the group's `Field` label.
+- The step card is a Fluent `Card` centred in a column no wider than ~720px.
+
+## Recommendation output
+
+Two elements, in this order, and no more:
+
+1. **Winner card.** A visually prominent Fluent `Card` containing the recommended tool name as the
+   only `h1` on the page, an eyebrow label ("Recommended tool"), the plain-language justification, and
+   the **Start over** button. It must be unmistakably the primary element: brand-tinted surface,
+   larger type, and clear separation from what follows.
+2. **Comparison table.** A Fluent `Table` beneath the winner card with exactly three columns —
+   *Tool*, *Use case*, *Why not this one?* — one row per runner-up, ordered by descending score. Cells
+   stay under 60 words. On narrow viewports rows stack, with each cell prefixed by its column label.
+
+Never render more than one winner. Never let the comparison table compete visually with the winner
+card — it is supporting evidence, not an alternative call to action.
+
+## Responsive behaviour
+
+Three breakpoints, matching DR-002:
+
+| Breakpoint | Behaviour |
+|------------|-----------|
+| ≤480px (mobile) | Single column, full-width stacked buttons, reduced type scale |
+| ≤768px (tablet) | Reduced padding, comparison table rows stack with visible field labels |
+| >768px (desktop) | Full table layout |
+
+Interactive targets are at least 44px tall at every breakpoint. No horizontal scrolling at any
+width — this is asserted in `tests/e2e/responsive.spec.ts`.
+
+## Content and tone
+
+- Business language, never developer jargon (FR-009).
+- Fixed interaction copy (DR-007): **Back**, **Next**, **See recommendation**, **Start over**,
+  **Try again**.
+- All recommendation prose is generated from framework signal and red flag text. Never hard-code
+  persuasive copy into a component.
+
+## Error states
+
+Error views reuse the same card layout, carry `role="alert"`, and offer a single clear action. They
+show plain language only — no stack traces, no error codes, no technical identifiers (DR-008).

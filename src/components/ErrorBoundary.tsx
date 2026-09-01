@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Button, Card, Text, Title1 } from '@fluentui/react-components';
 
 type ErrorBoundaryProps = {
   children: ReactNode;
@@ -24,17 +25,19 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (this.state.hasError) {
       return (
         <main className="wizard-shell">
-          <div className="wizard-card" role="alert">
-            <h1 className="wizard-title">Something went wrong</h1>
-            <p>The advisor hit an unexpected problem. Try again to start a new session.</p>
-            <button
-              type="button"
-              className="button button-primary"
-              onClick={() => this.setState({ hasError: false })}
-            >
-              Try again
-            </button>
-          </div>
+          <Card className="alert-card" role="alert">
+            <Title1 as="h1">Something went wrong</Title1>
+            <Text>The advisor hit an unexpected problem. Try again to start a new session.</Text>
+            <div>
+              <Button
+                appearance="primary"
+                className="alert-action"
+                onClick={() => this.setState({ hasError: false })}
+              >
+                Try again
+              </Button>
+            </div>
+          </Card>
         </main>
       );
     }

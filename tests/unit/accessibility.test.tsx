@@ -26,17 +26,24 @@ describe('Accessible markup (DR-001, SC-006)', () => {
     expect(radios.length).toBeGreaterThan(0);
 
     radios.forEach((radio) => {
-      expect(radio.closest('label')).toBeTruthy();
+      const labelled =
+        radio.closest('label') ??
+        (radio.id ? container.querySelector(`label[for="${radio.id}"]`) : null);
+
+      expect(labelled?.textContent?.trim().length).toBeGreaterThan(0);
       expect(radio.getAttribute('name')).toBeTruthy();
     });
   });
 
-  it('groups question options in a fieldset with the question as its legend', () => {
-    const { container } = render(<App />);
+  it('groups question options in a labelled radiogroup', () => {
+    render(<App />);
 
-    const fieldset = container.querySelector('fieldset');
-    expect(fieldset).toBeTruthy();
-    expect(fieldset!.querySelector('legend')?.textContent).toBeTruthy();
+    const group = screen.getByRole('radiogroup');
+    expect(group).toBeTruthy();
+
+    const groupName = group.getAttribute('aria-label') ?? group.getAttribute('aria-labelledby');
+    expect(groupName).toBeTruthy();
+    expect(screen.getAllByRole('radio').length).toBeGreaterThan(1);
   });
 
   it('renders the wizard inside a main landmark with a single h1', () => {

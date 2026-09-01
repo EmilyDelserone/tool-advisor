@@ -1,14 +1,32 @@
+import { ProgressBar, makeStyles, tokens } from '@fluentui/react-components';
+
 type ProgressIndicatorProps = {
   currentIndex: number;
   totalQuestions: number;
   isTiebreaker?: boolean;
 };
 
+const useStyles = makeStyles({
+  root: {
+    marginBottom: tokens.spacingVerticalL,
+  },
+  labels: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: tokens.spacingHorizontalS,
+    marginBottom: tokens.spacingVerticalS,
+    fontWeight: tokens.fontWeightSemibold,
+    color: tokens.colorNeutralForeground1,
+  },
+});
+
 export function ProgressIndicator({
   currentIndex,
   totalQuestions,
   isTiebreaker = false,
 }: ProgressIndicatorProps) {
+  const styles = useStyles();
   const currentPosition = currentIndex + 1;
   const progress = (currentPosition / totalQuestions) * 100;
   const label = isTiebreaker
@@ -16,22 +34,21 @@ export function ProgressIndicator({
     : `Question ${currentPosition} of ${totalQuestions}`;
 
   return (
-    <div className="progress">
-      <div className="progress-labels" aria-live="polite">
+    <div className={styles.root}>
+      <div className={styles.labels} aria-live="polite">
         <span>{label}</span>
         <span>{Math.round(progress)}% complete</span>
       </div>
-      <div
-        className="progress-track"
-        role="progressbar"
+      <ProgressBar
+        thickness="large"
         aria-label="Wizard progress"
         aria-valuenow={currentPosition}
         aria-valuemin={1}
         aria-valuemax={totalQuestions}
         aria-valuetext={label}
-      >
-        <div className="progress-bar" style={{ width: `${progress}%` }} />
-      </div>
+        value={currentPosition}
+        max={totalQuestions}
+      />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { Card, FluentProvider, Text, Title1, webLightTheme } from '@fluentui/react-components';
 import rulesData from './data/rules.json';
 import { loadRulesFile } from './engine/recommendationEngine';
 import type { RulesFile } from './engine/types';
@@ -14,20 +15,20 @@ try {
 }
 
 export default function App() {
-  if (!rules) {
-    return (
-      <main className="wizard-shell">
-        <div className="wizard-card" role="alert">
-          <h1 className="wizard-title">Unable to load framework data, please refresh</h1>
-          <p>{rulesError}</p>
-        </div>
-      </main>
-    );
-  }
-
   return (
-    <ErrorBoundary>
-      <WizardContainer rules={rules} />
-    </ErrorBoundary>
+    <FluentProvider theme={webLightTheme}>
+      {rules ? (
+        <ErrorBoundary>
+          <WizardContainer rules={rules} />
+        </ErrorBoundary>
+      ) : (
+        <main className="wizard-shell">
+          <Card className="alert-card" role="alert">
+            <Title1 as="h1">Unable to load framework data, please refresh</Title1>
+            <Text>{rulesError}</Text>
+          </Card>
+        </main>
+      )}
+    </FluentProvider>
   );
 }

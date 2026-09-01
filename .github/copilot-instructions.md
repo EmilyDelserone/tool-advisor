@@ -10,6 +10,7 @@ questions. No backend, no APIs, no storage.
 |----------|------------|
 | [docs/decision-framework.md](../docs/decision-framework.md) | The authoritative signals and red flags for every tool. Never invent tools or criteria outside this file. |
 | [docs/architecture-overview.md](../docs/architecture-overview.md) | System structure, component hierarchy, data flow, and module boundaries. |
+| [docs/ui-guidelines.md](../docs/ui-guidelines.md) | Fluent UI usage, stepper layout, winner card and comparison table, responsive rules. |
 | [docs/testing-guidelines.md](../docs/testing-guidelines.md) | Test layers, file locations, naming conventions, and what to run before pushing. |
 | [docs/coding-guidelines.md](../docs/coding-guidelines.md) | Formatting, import organization, and how DRY is applied here. |
 | [.specify/memory/constitution.md](../.specify/memory/constitution.md) | Non-negotiable project principles. |
@@ -38,6 +39,8 @@ intent — if code and spec disagree, resolve the disagreement rather than assum
    matched signal and red flag `text` values, never hard-coded prose.
 4. **Accessibility.** WCAG 2.1 AA is a requirement, not a polish item. Use semantic HTML and
    role-based queries; axe-core audits run in CI.
+5. **Fluent UI.** The UI is built on `@fluentui/react-components` with `webLightTheme`. Prefer a
+   Fluent component and theme tokens over custom markup or literal colours.
 
 ## Code layout
 

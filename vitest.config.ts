@@ -8,6 +8,12 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./tests/setup.ts'],
+    // Fluent UI ships CJS deps (tabster, keyborg) that need inlining under Vitest
+    server: {
+      deps: {
+        inline: [/@fluentui/, 'tabster', 'keyborg'],
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

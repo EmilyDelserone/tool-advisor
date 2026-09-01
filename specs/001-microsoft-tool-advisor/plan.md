@@ -14,7 +14,7 @@ Build a client-side wizard application that guides business stakeholders through
 
 **Language/Version**: JavaScript/TypeScript (ES2020+) with React 18+
 
-**Primary Dependencies**: React, Vite, TypeScript
+**Primary Dependencies**: React, Vite, TypeScript, Fluent UI React v9 (`@fluentui/react-components`)
 
 **Storage**: Browser session state only (no persistence, no external storage)
 

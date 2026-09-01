@@ -1,31 +1,8 @@
-:root {
-  --ink: #0f172a;
-  --ink-muted: #334155;
-  --brand: #1d4ed8;
-  --brand-strong: #1e40af;
-  --line: #cbd5e1;
-  --line-soft: #dbe4f0;
-  --surface: #ffffff;
-  --surface-tint: #eff6ff;
-  --page: #f1f5f9;
-}
-
-* {
-  box-sizing: border-box;
-}
+/* Layout shells and responsive rules only — component styling is owned by Fluent UI tokens */
 
 body {
   margin: 0;
-  background: var(--page);
-  color: var(--ink);
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-:focus-visible {
-  outline: 3px solid var(--brand);
-  outline-offset: 2px;
+  background: #f1f5f9;
 }
 
 .wizard-shell {
@@ -40,208 +17,30 @@ body {
   padding: 2rem 1rem;
 }
 
-.wizard-card {
-  background: var(--surface);
-  border: 1px solid var(--line-soft);
-  border-radius: 18px;
-  padding: 1.5rem;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-}
-
-.wizard-header {
-  margin-bottom: 1rem;
-}
-
-.wizard-eyebrow {
-  margin: 0;
-  font-weight: 700;
-  color: var(--brand);
-}
-
-.wizard-title {
-  margin: 0.35rem 0 0;
-  font-size: 2rem;
-}
-
-/* Progress */
-.progress {
-  margin-bottom: 1.5rem;
-}
-
-.progress-labels {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-
-.progress-track {
-  width: 100%;
-  background: #e2e8f0;
-  height: 12px;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #1d4ed8, #6d28d9);
-  border-radius: 999px;
-  transition: width 0.2s ease;
-}
-
-/* Question */
-.question-form {
+.alert-card {
+  padding: 2rem;
   display: grid;
   gap: 1rem;
 }
 
-.question-fieldset {
-  border: 1px solid var(--line-soft);
-  border-radius: 12px;
-  padding: 1.25rem;
-  margin: 0;
-}
-
-.question-legend {
-  font-size: 1.1rem;
-  font-weight: 700;
-  padding: 0 0.5rem;
-}
-
-.option-list {
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.option {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 0.9rem;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: #f8fafc;
-  cursor: pointer;
-}
-
-.option:hover {
-  border-color: var(--brand);
-}
-
-.option.is-selected {
-  border-color: var(--brand);
-  background: var(--surface-tint);
-}
-
-.wizard-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.button {
-  padding: 0.75rem 1.35rem;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
+.alert-action {
   min-height: 44px;
-}
-
-.button-secondary {
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--ink);
-}
-
-.button-primary {
-  border: none;
-  background: var(--brand);
-  color: #ffffff;
-}
-
-.button:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-/* Recommendation */
-.result-card {
-  background: var(--surface-tint);
-  border: 1px solid #bfdbfe;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-}
-
-.result-eyebrow {
-  margin: 0;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--brand-strong);
-}
-
-.result-title {
-  margin: 0.5rem 0 1rem;
-  font-size: 2.5rem;
-}
-
-.result-justification {
-  margin: 0;
-  font-size: 1.05rem;
-  color: var(--ink-muted);
-}
-
-.result-actions {
-  margin-top: 1.25rem;
-}
-
-/* Comparison table */
-.comparison {
-  margin-top: 2rem;
-}
-
-.comparison-scroll {
-  overflow-x: auto;
 }
 
 .comparison-table {
   width: 100%;
-  border-collapse: collapse;
-  border: 1px solid var(--line-soft);
-  background: var(--surface);
 }
 
-.comparison-table th,
-.comparison-table td {
-  text-align: left;
-  padding: 0.75rem;
-  border-bottom: 1px solid #e2e8f0;
+.comparison-table td,
+.comparison-table th {
   vertical-align: top;
 }
 
-.comparison-table thead tr {
-  background: var(--surface-tint);
-}
-
-/* Tablet */
+/* Tablet: stack comparison rows, labelling each cell with its column */
 @media (max-width: 768px) {
   .wizard-shell,
   .result-shell {
     padding: 1.25rem 0.75rem;
-  }
-
-  .result-card {
-    padding: 1.25rem;
-  }
-
-  .result-title {
-    font-size: 2rem;
   }
 
   .comparison-table,
@@ -264,35 +63,23 @@ body {
   }
 
   .comparison-table tr {
-    border-bottom: 1px solid var(--line-soft);
     padding: 0.5rem 0;
+    border-bottom: 1px solid #dbe4f0;
   }
 
   .comparison-table td::before {
     content: attr(data-label);
     display: block;
     font-weight: 700;
-    color: var(--ink);
   }
 }
 
-/* Mobile */
 @media (max-width: 480px) {
-  .wizard-title {
-    font-size: 1.6rem;
-  }
-
-  .wizard-actions {
+  .wizard-shell form > div:last-child {
     flex-direction: column-reverse;
   }
 
-  .button {
+  .wizard-shell form > div:last-child button {
     width: 100%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .progress-bar {
-    transition: none;
   }
 }

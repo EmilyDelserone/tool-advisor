@@ -1,3 +1,4 @@
+import { Card, Text, Title1, makeStyles, tokens } from '@fluentui/react-components';
 import type { RulesFile } from '../engine/types';
 import { useWizardState } from '../hooks/useWizardState';
 import { ProgressIndicator } from './ProgressIndicator';
@@ -8,7 +9,26 @@ type WizardContainerProps = {
   rules: RulesFile;
 };
 
+const useStyles = makeStyles({
+  stepCard: {
+    padding: tokens.spacingVerticalXXL,
+  },
+  header: {
+    marginBottom: tokens.spacingVerticalL,
+  },
+  eyebrow: {
+    display: 'block',
+    fontWeight: tokens.fontWeightBold,
+    color: tokens.colorBrandForeground1,
+  },
+  title: {
+    display: 'block',
+    marginTop: tokens.spacingVerticalXS,
+  },
+});
+
 export function WizardContainer({ rules }: WizardContainerProps) {
+  const styles = useStyles();
   const wizard = useWizardState(rules);
 
   if (wizard.recommendation) {
@@ -21,10 +41,12 @@ export function WizardContainer({ rules }: WizardContainerProps) {
 
   return (
     <main className="wizard-shell">
-      <div className="wizard-card">
-        <header className="wizard-header">
-          <p className="wizard-eyebrow">Microsoft Tool Advisor</p>
-          <h1 className="wizard-title">Choose the right Microsoft tool</h1>
+      <Card className={styles.stepCard}>
+        <header className={styles.header}>
+          <Text className={styles.eyebrow}>Microsoft Tool Advisor</Text>
+          <Title1 as="h1" className={styles.title}>
+            Choose the right Microsoft tool
+          </Title1>
         </header>
 
         <ProgressIndicator
@@ -42,7 +64,7 @@ export function WizardContainer({ rules }: WizardContainerProps) {
           onNext={wizard.goNext}
           onBack={wizard.goBack}
         />
-      </div>
+      </Card>
     </main>
   );
 }

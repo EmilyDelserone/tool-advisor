@@ -21,9 +21,9 @@ more tools score equally.
 ## Tech stack
 
 - React 18 + TypeScript (strict) on Vite 8
+- Fluent UI React v9 (`@fluentui/react-components`) with the default `webLightTheme`
 - Vitest + React Testing Library (unit, integration)
 - Playwright + axe-core (end-to-end, accessibility)
-- No runtime dependencies beyond React
 
 ## Commands
 
@@ -52,7 +52,8 @@ Playwright needs browsers once: `npx playwright install chromium`.
 4. The justification and the "Why not this one?" column are generated from the matched framework
    text, so every recommendation is traceable.
 
-More detail: [docs/architecture-overview.md](docs/architecture-overview.md) and
+More detail: [docs/architecture-overview.md](docs/architecture-overview.md),
+[docs/ui-guidelines.md](docs/ui-guidelines.md), and
 [src/CONTRIBUTING-ENGINE.md](src/CONTRIBUTING-ENGINE.md).
 
 ## Project layout

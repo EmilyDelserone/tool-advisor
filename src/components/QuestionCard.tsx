@@ -1,3 +1,12 @@
+import {
+  Button,
+  Card,
+  Field,
+  Radio,
+  RadioGroup,
+  makeStyles,
+  tokens,
+} from '@fluentui/react-components';
 import type { Question } from '../engine/types';
 
 type QuestionCardProps = {
@@ -10,6 +19,30 @@ type QuestionCardProps = {
   onBack: () => void;
 };
 
+const useStyles = makeStyles({
+  form: {
+    display: 'grid',
+    gap: tokens.spacingVerticalL,
+  },
+  optionsCard: {
+    padding: tokens.spacingVerticalL,
+  },
+  options: {
+    display: 'grid',
+    gap: tokens.spacingVerticalS,
+    marginTop: tokens.spacingVerticalS,
+  },
+  actions: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    gap: tokens.spacingHorizontalS,
+  },
+  // DR-002 requires a 44px minimum touch target; Fluent's default is 32px
+  button: {
+    minHeight: '44px',
+  },
+});
+
 export function QuestionCard({
   question,
   selectedValue,
@@ -19,6 +52,7 @@ export function QuestionCard({
   onNext,
   onBack,
 }: QuestionCardProps) {
+  const styles = useStyles();
   const options = question.options ?? [
     { id: 'yes', label: 'Yes' },
     { id: 'no', label: 'No' },
@@ -26,7 +60,7 @@ export function QuestionCard({
 
   return (
     <form
-      className="question-form"
+      className={styles.form}
       onSubmit={(event) => {
         event.preventDefault();
         if (selectedValue) {
@@ -34,45 +68,39 @@ export function QuestionCard({
         }
       }}
     >
-      <fieldset className="question-fieldset">
-        <legend className="question-legend">{question.text}</legend>
+      <Card className={styles.optionsCard}>
+        <Field label={question.text} size="large">
+          <RadioGroup
+            className={styles.options}
+            name={question.id}
+            value={selectedValue ?? ''}
+            onChange={(_, data) => onSelect(data.value)}
+          >
+            {options.map((option) => (
+              <Radio key={option.id} value={option.id} label={option.label} />
+            ))}
+          </RadioGroup>
+        </Field>
+      </Card>
 
-        <div className="option-list">
-          {options.map((option) => {
-            const isSelected = selectedValue === option.id;
-
-            return (
-              <label
-                key={option.id}
-                className={isSelected ? 'option is-selected' : 'option'}
-              >
-                <input
-                  type="radio"
-                  name={question.id}
-                  value={option.id}
-                  checked={isSelected}
-                  onChange={() => onSelect(option.id)}
-                />
-                <span>{option.label}</span>
-              </label>
-            );
-          })}
-        </div>
-      </fieldset>
-
-      <div className="wizard-actions">
-        <button
+      <div className={styles.actions}>
+        <Button
+          className={styles.button}
+          appearance="secondary"
           type="button"
-          className="button button-secondary"
           onClick={onBack}
           disabled={!canGoBack}
         >
           Back
-        </button>
-
-        <button type="submit" className="button button-primary" disabled={!selectedValue}>
+        </Button>
+        <Button
+          className={styles.button}
+          appearance="primary"
+          type="submit"
+          disabled={!selectedValue}
+        >
           {isLastQuestion ? 'See recommendation' : 'Next'}
-        </button>
+        </Button>
       </div>
     </form>
   );
