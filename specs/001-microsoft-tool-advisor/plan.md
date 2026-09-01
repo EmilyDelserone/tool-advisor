@@ -18,15 +18,21 @@ Build a client-side wizard application that guides business stakeholders through
 
 **Storage**: Browser session state only (no persistence, no external storage)
 
-**Testing**: Vitest, React Testing Library, Playwright (e2e)
+**State Management**: Plain React hooks. All wizard state (`currentQuestionIndex`, `answers`, `tiebreakerQuestion`, `recommendation`) lives in a single custom hook, `src/hooks/useWizardState.ts`, consumed by `WizardContainer`. No Context, no reducer, no state library — the state is small, local, and never shared across routes.
 
-**Target Platform**: Web browser (desktop, tablet, mobile responsive)
+**Testing**: Three layers, all runnable locally and in CI:
+
+- **Unit** (`tests/unit/`, Vitest): pure engine functions, `rules.json` schema validation, quickstart scenario outcomes, and static checks that no network or storage APIs appear in `src/`
+- **Integration** (`tests/integration/`, Vitest + React Testing Library, jsdom): full wizard navigation, tiebreaker path, restart, and recommendation/comparison rendering
+- **E2E** (`tests/e2e/`, Playwright): real-browser wizard flow, offline and zero-request verification, and axe-core WCAG 2.1 AA audits
+
+**Target Platform**: Web browser — latest two versions of Chrome, Edge, Firefox, and Safari (desktop, tablet, mobile). Internet Explorer is out of scope.
 
 **Project Type**: Single-page web application (React + Vite frontend only)
 
-**Performance Goals**: Complete 5-7 question flow + recommendation display in under 3 minutes; responsive interactions (<100ms per question submission)
+**Performance Goals**: Complete 5-7 question flow + recommendation display in under 3 minutes; question transitions and recommendation generation under 100ms; first load under 2 seconds; production bundle under 200KB gzipped
 
-**Constraints**: Client-side only (no backend), offline-capable, zero external API calls, WCAG 2.1 AA accessibility
+**Constraints**: Client-side only (no backend), offline-capable, zero external API calls, WCAG 2.1 AA accessibility, responsive at 480px / 768px / desktop breakpoints
 
 **Scale/Scope**: Single feature (wizard + recommendation), 5 tools in decision matrix, ~5-7 core questions + optional 1 tiebreaker
 

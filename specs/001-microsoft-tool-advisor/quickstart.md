@@ -168,6 +168,33 @@ ALTERNATIVES CONSIDERED:
 
 ---
 
+## Scenario 4b: Enterprise Integration - Azure Logic Apps Recommendation
+
+**Objective**: Verify the wizard produces an Azure Logic Apps recommendation for enterprise integration scenarios, completing coverage of all five in-scope tools.
+
+**Setup**: Reload page
+
+**Steps**:
+
+1. **Answer Questions** consistent with Azure Logic Apps:
+   - [ ] Needs a UI? → No
+   - [ ] Needs custom code? → No
+   - [ ] Integrating multiple systems? → Yes
+   - [ ] Scheduled or event-driven? → Yes
+   - [ ] Natural language or chatbot? → No
+   - [ ] Who will use it? → Internal employees
+   - [ ] Enterprise-scale throughput / on-prem / B2B? → Yes
+
+2. **Verify Recommendation**:
+   - [ ] Primary recommendation is "Azure Logic Apps"
+   - [ ] Justification cites the on-premises/B2B and high-volume signals
+
+**Expected Outcome**: Azure Logic Apps is recommended.
+
+**Automated equivalent**: `tests/unit/quickstart-scenarios.test.ts` runs Scenarios 1, 2, 3, 4, and 4b on every test run and asserts all five tools are reachable.
+
+---
+
 ## Scenario 5: Offline Functionality
 
 **Objective**: Verify the app works offline (no network calls required).
@@ -191,6 +218,8 @@ ALTERNATIVES CONSIDERED:
    - [ ] Recommendation logic executes entirely client-side
 
 **Expected Outcome**: Wizard functions identically offline and online; zero external API calls.
+
+**Automated equivalent**: `npx playwright test tests/e2e/offline.spec.ts` records every request and asserts no non-localhost host is contacted, repeats the flow with the browser context offline, and asserts `localStorage`, `sessionStorage`, and cookies stay empty. `tests/unit/offline.test.ts` additionally fails if `fetch`, `XMLHttpRequest`, `sendBeacon`, `WebSocket`, `EventSource`, or any storage API appears anywhere in `src/`.
 
 ---
 
@@ -219,6 +248,8 @@ ALTERNATIVES CONSIDERED:
    - [ ] Recommendation and comparison table are readable via screen reader
 
 **Expected Outcome**: All content accessible via keyboard and screen reader.
+
+**Automated equivalent**: `npx playwright test tests/e2e/accessibility.spec.ts` injects axe-core and audits the question and results views against the `wcag2a`, `wcag2aa`, and `wcag21aa` rule sets, failing on any critical or serious violation, plus a keyboard-only pass through the whole wizard. Screen reader verification (VoiceOver/NVDA) remains a manual step.
 
 ---
 

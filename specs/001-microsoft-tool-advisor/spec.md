@@ -108,19 +108,40 @@ The entire tool advisor experience — questions, decision logic, recommendation
 - **FR-007**: System MUST display a comparison table showing 1-2 runner-up tools with key differentiators (from `rules.json`) based on the decision framework
 - **FR-008**: System MUST run entirely client-side (no backend, no external API calls, no database)
 - **FR-009**: System MUST provide readable recommendations using business-friendly language, not technical jargon
-- **FR-010**: System MUST allow users to restart the wizard at any time to get a new recommendation
+- **FR-010**: System MUST allow users to restart the wizard at any time to get a new recommendation; restarting clears all stored answers, any tiebreaker answer, and the generated recommendation, and returns the user to question 1
 - **FR-011**: System MUST work without network connectivity (offline-capable)
 - **FR-012**: Recommendations MUST be grounded exclusively in the decision framework; no recommendations outside the five tools (Power Automate, Power Apps, Copilot Studio, Azure Logic Apps, Azure Functions) are permitted
 - **FR-013**: System MUST load decision framework data from `src/data/rules.json` at application startup; this file is the runtime source of truth for tool definitions, signals, red flags, and scoring weights
+- **FR-001a**: Questions MUST be presented in ascending `position` order. Core questions occupy positions 1-7; tiebreaker questions occupy positions 8+ and are excluded from the core sequence
+- **FR-001b**: Every question MUST be one of two formats: yes/no (implicit `yes` / `no` options) or multiple-choice single-select (explicit `options[]`). Multi-select and free-text answers are out of scope
+- **FR-002a**: Answers MUST be held in React component state (browser memory) for the duration of the session. The system MUST NOT write to `localStorage`, `sessionStorage`, cookies, or IndexedDB. A page reload therefore restarts the wizard at question 1
+- **FR-004a**: The score for each tool MUST be `netScore = Σ weight(matched signals) − Σ weight(matched red flags)`, where a signal or red flag matches only if the user's answers activated it **and** the tool appears in its `applicableTools` list. Duplicate activations of the same signal or red flag count once. Scores may be negative
+- **FR-005b**: A tie MUST be declared when two or more tools share the highest `netScore`. The system MUST then select the first entry in `tiebreakers[]` whose `appliesWhen` list contains every tied tool id and whose question has not yet been answered, and present that question
+- **FR-005c**: If tools remain tied after the tiebreaker (or no applicable tiebreaker exists), the system MUST resolve deterministically: highest `signalScore` first, then the order tools appear in `rules.json`. The same answers MUST always produce the same recommendation
+- **FR-006a**: The justification MUST cite up to 2 matched signals and up to 1 matched red flag, rendered as 1-3 sentences of no more than 60 words
+- **FR-007a**: The comparison table MUST have exactly three columns — Tool, Use case, Why not this one? — with rows ordered by descending `netScore`
+- **FR-007b**: Each "Why not this one?" cell MUST cite up to 2 signals the primary tool matched but the runner-up did not, plus up to 2 red flags the runner-up matched. When neither exists, it MUST state the score difference instead
+- **FR-014**: If `rules.json` fails schema validation at startup, the system MUST display "Unable to load framework data, please refresh" instead of the wizard. Any other runtime error MUST be caught by an error boundary that offers a "Try again" action. No error path may transmit data off the device
+- **FR-015**: There is no minimum confidence threshold — a recommendation is always produced. When the primary tool's `netScore` is 10 or lower, the justification MUST include a caveat that the answers are only a partial match and the alternatives are worth reviewing
+- **FR-016**: `rules.json` is bundled into the application at build time. Framework changes take effect only after a redeploy and a page reload; content-hashed asset filenames ensure browsers do not serve a stale bundle. No real-time sync is required
 
 ### Design & Usability Requirements
 
 - **DR-001**: The wizard interface MUST be accessible (WCAG 2.1 AA minimum) including keyboard navigation and screen reader support
-- **DR-002**: The UI MUST be responsive and function smoothly on desktop, tablet, and mobile devices
+- **DR-002**: The UI MUST be responsive across three breakpoints: mobile (≤480px, single column, full-width stacked buttons), tablet (≤768px, reduced padding, comparison table rows stacked with visible field labels), and desktop (>768px, full table layout). Interactive targets MUST be at least 44px tall
 - **DR-003**: Each question MUST be presented with clear, non-technical phrasing appropriate for business stakeholders
-- **DR-004**: The progress indicator MUST be clearly visible and updated after each question submission
-- **DR-005**: The primary recommendation MUST be visually emphasized (color, size, typography) to distinguish it from supporting information
-- **DR-006**: The comparison table MUST be easy to scan and compare alternatives
+- **DR-004**: The progress indicator MUST be clearly visible and update after each question submission. It MUST read "Question X of Y" (or "Tiebreaker question X of Y") alongside a percentage complete, and expose `role="progressbar"` with `aria-valuenow`/`aria-valuemin`/`aria-valuemax` plus a polite live region
+- **DR-005**: The primary recommendation MUST be visually emphasized: tool name as the only `h1` at ~2.5rem, inside a tinted panel (light blue background, blue border, drop shadow) that is visually distinct from the comparison table; body copy at ≥16px with a minimum 4.5:1 contrast ratio
+- **DR-006**: The comparison table MUST be easy to scan: three columns, one row per runner-up, and no more than 60 words per cell
+- **DR-007**: Interaction copy MUST use these labels: "Back", "Next", "See recommendation" (final question), "Start over" (results), "Try again" (error state)
+- **DR-008**: Error states MUST render in the same card layout as the wizard, carry `role="alert"`, and use plain language with no stack traces or technical identifiers
+
+### Non-Functional Requirements
+
+- **NFR-001**: Question-to-question transitions MUST render in under 100ms on a mid-range laptop; recommendation generation MUST complete in under 100ms
+- **NFR-002**: The production bundle MUST stay under 200KB gzipped
+- **NFR-003**: The application MUST support the latest two versions of Chrome, Edge, Firefox, and Safari (desktop and mobile). Internet Explorer is out of scope
+- **NFR-004**: First load MUST complete within 2 seconds on a broadband connection; after first load the application MUST work with no network at all
 
 ## Key Entities
 
@@ -137,14 +158,49 @@ The entire tool advisor experience — questions, decision logic, recommendation
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can complete the full wizard (5-7 core questions + optional tiebreaker → recommendation → comparison table) in under 3 minutes
-- **SC-002**: 100% of recommendations are grounded in the decision framework (every recommendation cites specific framework signals from `rules.json`)
-- **SC-003**: 90% of business stakeholders (non-technical users) can understand the recommendation reason without additional explanation
-- **SC-004**: Zero external network requests or API calls during the full user workflow (verified via network inspection)
-- **SC-005**: Tool functions identically with and without network connectivity
-- **SC-006**: Accessibility audit (WCAG 2.1 AA) passes with zero critical/major issues
+- **SC-001**: Users can complete the full wizard (5-7 core questions + optional tiebreaker → recommendation → comparison table) in under 3 minutes. Measured from first question render to results render, on a desktop browser, by an unassisted first-time participant
+- **SC-002**: 100% of recommendations are grounded in the decision framework (every recommendation cites specific framework signals from `rules.json`). Verified by automated assertion that justification and every runner-up differentiator contain at least one signal or red flag `text` value
+- **SC-003**: 90% of business stakeholders (non-technical users) can understand the recommendation reason without additional explanation. Verified by a moderated review with at least 10 participants who restate the reason in their own words; a restatement matching the cited signals counts as understood
+- **SC-004**: Zero external network requests or API calls during the full user workflow. Verified by an automated browser test that records every request and asserts no non-localhost host is contacted
+- **SC-005**: Tool functions identically with and without network connectivity. Verified by completing the full flow with the browser context set offline after first load
+- **SC-006**: Accessibility audit (WCAG 2.1 AA) passes with zero critical/major issues. Verified by an automated axe-core audit (`wcag2a`, `wcag2aa`, `wcag21aa` rule sets) on both the question and results views, plus a manual keyboard-only pass
 - **SC-007**: When tied tools are detected after core questions, a tiebreaker question is presented and results in a clear single-tool recommendation
 - **SC-008**: `rules.json` is loaded successfully and all tool definitions, signals, red flags, and weights are accessible to the recommendation algorithm on startup
+
+## Traceability
+
+### User stories → functional requirements
+
+| User story | Functional requirements |
+|------------|-------------------------|
+| US1 Discovery through guided questions | FR-001, FR-001a, FR-001b, FR-002, FR-002a, FR-003, FR-010 |
+| US2 Primary recommendation with justification | FR-004, FR-004a, FR-005, FR-005a, FR-005b, FR-005c, FR-006, FR-006a, FR-009, FR-015 |
+| US3 Comparison table with runner-ups | FR-007, FR-007a, FR-007b, FR-012 |
+| US4 Client-side completeness | FR-008, FR-011, FR-013, FR-014, FR-016 |
+
+### Success criteria → functional requirements
+
+| Success criterion | Verifies |
+|-------------------|----------|
+| SC-001 | FR-001, FR-003 |
+| SC-002 | FR-006, FR-006a, FR-007b, FR-012 |
+| SC-003 | FR-009 |
+| SC-004 | FR-008 |
+| SC-005 | FR-011, FR-013 |
+| SC-006 | DR-001, DR-004, DR-005 |
+| SC-007 | FR-005, FR-005a, FR-005b, FR-005c |
+| SC-008 | FR-013, FR-014 |
+
+### Edge cases → requirements
+
+| Edge case | Requirement |
+|-----------|-------------|
+| Refresh mid-wizard restarts at question 1 | FR-002a |
+| Tie after core questions | FR-005b |
+| Tie persists after tiebreaker | FR-005c |
+| Framework updated after deployment | FR-016 |
+| Answers only partially match a tool | FR-015 |
+| Malformed or unloadable `rules.json` | FR-014 |
 
 ## Assumptions
 

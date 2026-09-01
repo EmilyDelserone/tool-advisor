@@ -137,11 +137,17 @@ export function applyTiebreakerSignals(
  * Generate plain-language justification for a recommendation
  * Cites specific signals and red flags from the framework
  */
+export const PARTIAL_MATCH_THRESHOLD = 10;
+
+export const PARTIAL_MATCH_CAVEAT =
+  'Your answers are only a partial match for any one tool, so review the alternatives below before committing.';
+
 export function generateJustification(
   matchedSignalIds: string[],
   matchedRedFlagIds: string[],
   signals: Signal[],
-  redFlags: RedFlag[]
+  redFlags: RedFlag[],
+  netScore?: number
 ): string {
   const matchedSignals = signals.filter((s) => matchedSignalIds.includes(s.id));
   const matchedFlags = redFlags.filter((f) => matchedRedFlagIds.includes(f.id));
@@ -153,18 +159,22 @@ export function generateJustification(
     const signalTexts = matchedSignals
       .slice(0, 2) // Take top 2 signals
       .map((s) => s.text);
-    parts.push(`This recommendation aligns with your needs: ${signalTexts.join(' and ')}.`);
+    parts.push(`This recommendation aligns with your needs: ${joinWithAnd(signalTexts)}.`);
   }
 
   if (matchedFlags.length > 0) {
     const flagTexts = matchedFlags
       .slice(0, 1) // Take top red flag
       .map((f) => f.text);
-    parts.push(`It also avoids constraints like: ${flagTexts.join(' and ')}.`);
+    parts.push(`It also avoids constraints like: ${joinWithAnd(flagTexts)}.`);
   }
 
   if (parts.length === 0) {
-    return 'This is the best fit based on your requirements.';
+    parts.push('This is the best fit based on your requirements.');
+  }
+
+  if (netScore !== undefined && netScore <= PARTIAL_MATCH_THRESHOLD) {
+    parts.push(PARTIAL_MATCH_CAVEAT);
   }
 
   return parts.join(' ');
@@ -273,7 +283,8 @@ export function findPrimaryRecommendation(
     primaryToolScore.matchedSignalIds,
     primaryToolScore.matchedRedFlagIds,
     rulesFile.signals,
-    rulesFile.redFlags
+    rulesFile.redFlags,
+    primaryToolScore.netScore
   );
 
   // Get runner-up tools (2nd and 3rd place, up to 2 tools)

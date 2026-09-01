@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import rulesData from '../../src/data/rules.json';
-import { answerToSignals, findPrimaryRecommendation } from '../../src/engine/recommendationEngine';
+import {
+  PARTIAL_MATCH_CAVEAT,
+  PARTIAL_MATCH_THRESHOLD,
+  answerToSignals,
+  findPrimaryRecommendation,
+} from '../../src/engine/recommendationEngine';
 import type { Answer, RulesFile } from '../../src/engine/types';
 
 const rules = rulesData as RulesFile;
@@ -66,5 +71,27 @@ describe('quickstart.md recommendation scenarios (SC-002)', () => {
     );
 
     expect(new Set(recommended).size).toBe(rules.tools.length);
+  });
+});
+
+describe('partial match caveat (FR-015)', () => {
+  it('adds the caveat when the winning score is at or below the threshold', () => {
+    const weak = findPrimaryRecommendation(
+      buildAnswers(['no', 'yes', 'no', 'no', 'no', 'external', 'no']),
+      rules
+    );
+
+    expect(weak.score).toBeLessThanOrEqual(PARTIAL_MATCH_THRESHOLD);
+    expect(weak.justification).toContain(PARTIAL_MATCH_CAVEAT);
+  });
+
+  it('omits the caveat for a strong match', () => {
+    const strong = findPrimaryRecommendation(
+      buildAnswers(['no', 'no', 'yes', 'yes', 'no', 'internal', 'yes']),
+      rules
+    );
+
+    expect(strong.score).toBeGreaterThan(PARTIAL_MATCH_THRESHOLD);
+    expect(strong.justification).not.toContain(PARTIAL_MATCH_CAVEAT);
   });
 });

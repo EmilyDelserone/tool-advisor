@@ -68,4 +68,18 @@ describe('Recommendation result (US2, US3)', () => {
       expect(citesFramework).toBe(true);
     });
   });
+
+  it('keeps every table cell scannable at 60 words or fewer (DR-006)', () => {
+    recommendation.runnerUps.forEach((runnerUp) => {
+      [runnerUp.tool.name, runnerUp.tool.primaryUseCase, runnerUp.differentiationText].forEach(
+        (cell) => {
+          expect(cell.trim().split(/\s+/).length).toBeLessThanOrEqual(60);
+        }
+      );
+    });
+  });
+
+  it('keeps the justification within 60 words (FR-006a)', () => {
+    expect(recommendation.justification.trim().split(/\s+/).length).toBeLessThanOrEqual(60);
+  });
 });
