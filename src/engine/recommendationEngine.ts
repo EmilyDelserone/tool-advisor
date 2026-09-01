@@ -9,12 +9,15 @@ import type {
   RedFlag,
   Tool,
   Answer,
+  Question,
   QuestionMapping,
   RulesFile,
   ToolScore,
   Recommendation,
   RunnerUpTool,
 } from './types';
+import { scoreTools } from '../utils/scoring';
+import { joinWithAnd, lowerFirst, pluralize } from '../utils/formatting';
 
 /**
  * Maps a user's answer to activated signals and red flags
@@ -50,45 +53,7 @@ export function calculateToolScores(
   redFlags: RedFlag[],
   tools: Tool[]
 ): ToolScore[] {
-  return tools.map((tool) => {
-    // Find matching signals for this tool
-    const matchedSignals = signals.filter(
-      (signal) =>
-        activatedSignalIds.includes(signal.id) &&
-        signal.applicableTools.includes(tool.id)
-    );
-
-    // Calculate signal score
-    const signalScore = matchedSignals.reduce(
-      (sum, signal) => sum + signal.weight,
-      0
-    );
-
-    // Find matching red flags for this tool
-    const matchedRedFlags = redFlags.filter(
-      (flag) =>
-        activatedRedFlagIds.includes(flag.id) &&
-        flag.applicableTools.includes(tool.id)
-    );
-
-    // Calculate red flag penalty
-    const redFlagPenalty = matchedRedFlags.reduce(
-      (sum, flag) => sum + flag.weight,
-      0
-    );
-
-    // Net score = signals - red flags (can be negative)
-    const netScore = signalScore - redFlagPenalty;
-
-    return {
-      toolId: tool.id,
-      signalScore,
-      redFlagPenalty,
-      netScore,
-      matchedSignalIds: matchedSignals.map((s) => s.id),
-      matchedRedFlagIds: matchedRedFlags.map((f) => f.id),
-    };
-  });
+  return scoreTools(activatedSignalIds, activatedRedFlagIds, signals, redFlags, tools);
 }
 
 /**
@@ -206,12 +171,62 @@ export function generateJustification(
 }
 
 /**
+ * Generate plain-language text explaining why a runner-up was not chosen.
+ * Cites the runner-up's matched red flags and the framework signals it does not cover.
+ */
+export function generateRunnerUpDifferentiator(
+  primaryTool: Tool,
+  runnerUpTool: Tool,
+  primaryScore: ToolScore,
+  runnerUpScore: ToolScore,
+  signals: Signal[],
+  redFlags: RedFlag[]
+): string {
+  const parts: string[] = [];
+
+  const missingSignals = signals.filter(
+    (signal) =>
+      primaryScore.matchedSignalIds.includes(signal.id) &&
+      !runnerUpScore.matchedSignalIds.includes(signal.id)
+  );
+
+  const runnerUpFlags = redFlags.filter((flag) =>
+    runnerUpScore.matchedRedFlagIds.includes(flag.id)
+  );
+
+  parts.push(`${runnerUpTool.name} covers ${runnerUpTool.primaryUseCase}.`);
+
+  if (missingSignals.length > 0) {
+    const texts = missingSignals.slice(0, 2).map((s) => lowerFirst(s.text));
+    parts.push(
+      `Your answers pointed to ${joinWithAnd(texts)}, which the framework maps to ${primaryTool.name} rather than ${runnerUpTool.name}.`
+    );
+  }
+
+  if (runnerUpFlags.length > 0) {
+    const texts = runnerUpFlags.slice(0, 2).map((f) => lowerFirst(f.text));
+    parts.push(
+      `It also hits the ${pluralize(runnerUpFlags.length, 'red flag')} ${joinWithAnd(texts)}.`
+    );
+  }
+
+  if (missingSignals.length === 0 && runnerUpFlags.length === 0) {
+    parts.push(
+      `It scored ${primaryScore.netScore - runnerUpScore.netScore} points lower than ${primaryTool.name} on the framework signals your answers activated.`
+    );
+  }
+
+  return parts.join(' ');
+}
+
+/**
  * Find the primary tool recommendation given user answers
  * Returns recommendation with justification and runner-ups
  */
 export function findPrimaryRecommendation(
   answers: Answer[],
-  rulesFile: RulesFile
+  rulesFile: RulesFile,
+  preferredToolId?: string
 ): Recommendation {
   // Aggregate all activated signals and red flags from all answers
   const allActivatedSignalIds: string[] = [];
@@ -238,6 +253,15 @@ export function findPrimaryRecommendation(
   // Sort by net score descending
   const sorted = [...toolScores].sort((a, b) => b.netScore - a.netScore);
 
+  // A tiebreaker-resolved tool wins only when it is still tied for the top score
+  if (preferredToolId) {
+    const preferredIndex = sorted.findIndex((s) => s.toolId === preferredToolId);
+    if (preferredIndex > 0 && sorted[preferredIndex].netScore === sorted[0].netScore) {
+      const [preferred] = sorted.splice(preferredIndex, 1);
+      sorted.unshift(preferred);
+    }
+  }
+
   // Get primary tool
   const primaryToolScore = sorted[0];
   const primaryTool = rulesFile.tools.find(
@@ -256,7 +280,14 @@ export function findPrimaryRecommendation(
   const runnerUpScores = sorted.slice(1, 3);
   const runnerUps: RunnerUpTool[] = runnerUpScores.map((score) => {
     const tool = rulesFile.tools.find((t) => t.id === score.toolId)!;
-    const differentiationText = `${tool.name} is great for ${tool.primaryUseCase}, but ${primaryTool.name} is the better fit for your specific needs.`;
+    const differentiationText = generateRunnerUpDifferentiator(
+      primaryTool,
+      tool,
+      primaryToolScore,
+      score,
+      rulesFile.signals,
+      rulesFile.redFlags
+    );
 
     return {
       tool,
@@ -278,6 +309,77 @@ export function findPrimaryRecommendation(
   };
 
   return recommendation;
+}
+
+export type WizardEvaluation =
+  | { status: 'tiebreaker'; tiebreakerQuestion: Question; tiedToolIds: string[] }
+  | { status: 'resolved'; recommendation: Recommendation };
+
+/**
+ * Decide whether the answers so far resolve to a recommendation or still need a tiebreaker.
+ */
+export function evaluateAnswers(
+  answers: Answer[],
+  rulesFile: RulesFile
+): WizardEvaluation {
+  const activatedSignalIds = Array.from(
+    new Set(answers.flatMap((a) => a.activatedSignalIds))
+  );
+  const activatedRedFlagIds = Array.from(
+    new Set(answers.flatMap((a) => a.activatedRedFlagIds))
+  );
+
+  const toolScores = calculateToolScores(
+    activatedSignalIds,
+    activatedRedFlagIds,
+    rulesFile.signals,
+    rulesFile.redFlags,
+    rulesFile.tools
+  );
+
+  const { isTie, tiedToolIds } = detectTie(toolScores);
+
+  if (!isTie) {
+    return { status: 'resolved', recommendation: findPrimaryRecommendation(answers, rulesFile) };
+  }
+
+  const applicable = (rulesFile.tiebreakers ?? []).filter((tb) =>
+    tiedToolIds.every((toolId) => tb.appliesWhen.includes(toolId))
+  );
+
+  const unanswered = applicable.find(
+    (tb) => !answers.some((a) => a.questionId === tb.questionId)
+  );
+
+  if (unanswered) {
+    const tiebreakerQuestion = rulesFile.questions.find(
+      (q) => q.id === unanswered.questionId
+    );
+
+    if (tiebreakerQuestion) {
+      return { status: 'tiebreaker', tiebreakerQuestion, tiedToolIds };
+    }
+  }
+
+  // Tiebreaker already answered (or none defined): resolve deterministically
+  const answeredTiebreaker = applicable
+    .map((tb) => answers.find((a) => a.questionId === tb.questionId))
+    .find((a): a is Answer => Boolean(a));
+
+  const preferredToolId = answeredTiebreaker
+    ? applyTiebreakerSignals(
+        answeredTiebreaker,
+        tiedToolIds,
+        rulesFile.signals,
+        rulesFile.redFlags,
+        rulesFile.tools
+      ).resolvedToolId
+    : undefined;
+
+  return {
+    status: 'resolved',
+    recommendation: findPrimaryRecommendation(answers, rulesFile, preferredToolId),
+  };
 }
 
 /**

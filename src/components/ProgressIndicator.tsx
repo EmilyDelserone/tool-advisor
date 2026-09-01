@@ -1,45 +1,36 @@
 type ProgressIndicatorProps = {
   currentIndex: number;
   totalQuestions: number;
+  isTiebreaker?: boolean;
 };
 
-export function ProgressIndicator({ currentIndex, totalQuestions }: ProgressIndicatorProps) {
-  const progress = ((currentIndex + 1) / totalQuestions) * 100;
+export function ProgressIndicator({
+  currentIndex,
+  totalQuestions,
+  isTiebreaker = false,
+}: ProgressIndicatorProps) {
+  const currentPosition = currentIndex + 1;
+  const progress = (currentPosition / totalQuestions) * 100;
+  const label = isTiebreaker
+    ? `Tiebreaker question ${currentPosition} of ${totalQuestions}`
+    : `Question ${currentPosition} of ${totalQuestions}`;
 
   return (
-    <div style={{ marginBottom: '1.5rem' }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '0.5rem',
-          fontWeight: 600,
-          color: '#0f172a',
-        }}
-      >
-        <span>Question {currentIndex + 1}</span>
-        <span>{totalQuestions} total</span>
+    <div className="progress">
+      <div className="progress-labels" aria-live="polite">
+        <span>{label}</span>
+        <span>{Math.round(progress)}% complete</span>
       </div>
       <div
-        aria-label="Progress"
-        style={{
-          width: '100%',
-          background: '#e2e8f0',
-          height: '12px',
-          borderRadius: '999px',
-          overflow: 'hidden',
-        }}
+        className="progress-track"
+        role="progressbar"
+        aria-label="Wizard progress"
+        aria-valuenow={currentPosition}
+        aria-valuemin={1}
+        aria-valuemax={totalQuestions}
+        aria-valuetext={label}
       >
-        <div
-          style={{
-            width: `${progress}%`,
-            height: '100%',
-            background: 'linear-gradient(90deg, #2563eb, #7c3aed)',
-            borderRadius: '999px',
-            transition: 'width 0.2s ease',
-          }}
-        />
+        <div className="progress-bar" style={{ width: `${progress}%` }} />
       </div>
     </div>
   );

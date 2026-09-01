@@ -1,0 +1,53 @@
+import { test, expect } from '@playwright/test';
+import { TIE_PATH, UI_APP_PATH, answerByIndex, walkPath } from './helpers';
+
+const CORE_QUESTIONS = UI_APP_PATH.length;
+
+test.describe('Wizard end-to-end (US1, US2, US3)', () => {
+  test('walks through all questions and shows a recommendation with runner-ups', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page.getByText(`Question 1 of ${CORE_QUESTIONS}`)).toBeVisible();
+    await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1');
+
+    await answerByIndex(page, UI_APP_PATH[0]);
+    await expect(page.getByText(`Question 2 of ${CORE_QUESTIONS}`)).toBeVisible();
+
+    await walkPath(page, UI_APP_PATH.slice(1));
+
+    await expect(page.getByText('Recommended tool')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Power Apps');
+    await expect(page.getByRole('columnheader', { name: /why not this one/i })).toBeVisible();
+  });
+
+  test('presents the tiebreaker question when tools tie and resolves to one tool', async ({ page }) => {
+    await page.goto('/');
+    await walkPath(page, TIE_PATH);
+
+    await expect(
+      page.getByText(`Tiebreaker question ${CORE_QUESTIONS + 1} of ${CORE_QUESTIONS + 1}`)
+    ).toBeVisible();
+
+    await page.getByLabel('Business users or citizen developers').check();
+    await page.getByRole('button', { name: /see recommendation/i }).click();
+
+    await expect(page.getByText('Recommended tool')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+  });
+
+  test('restarts back to the first question', async ({ page }) => {
+    await page.goto('/');
+    await walkPath(page, UI_APP_PATH);
+
+    await page.getByRole('button', { name: /start over/i }).click();
+    await expect(page.getByText(`Question 1 of ${CORE_QUESTIONS}`)).toBeVisible();
+  });
+
+  test('supports keyboard-only navigation through a question', async ({ page }) => {
+    await page.goto('/');
+
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Space');
+    await expect(page.getByRole('radio').first()).toBeChecked();
+  });
+});

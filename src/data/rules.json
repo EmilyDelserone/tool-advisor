@@ -48,14 +48,14 @@
     {
       "id": "custom-code-logic",
       "text": "Need custom code and complex logic",
-      "weight": 8,
+      "weight": 10,
       "applicableTools": ["azure-functions"]
     },
     {
       "id": "scheduled-process",
       "text": "Scheduled or event-driven process",
       "weight": 7,
-      "applicableTools": ["power-automate", "azure-logic-apps"]
+      "applicableTools": ["power-automate", "azure-logic-apps", "azure-functions"]
     },
     {
       "id": "cloud-connectors",
@@ -80,6 +80,48 @@
       "text": "Conversational AI interface",
       "weight": 9,
       "applicableTools": ["copilot-studio"]
+    },
+    {
+      "id": "citizen-developer-owned",
+      "text": "Built and maintained by citizen developers or power users",
+      "weight": 7,
+      "applicableTools": ["power-automate", "power-apps", "copilot-studio"]
+    },
+    {
+      "id": "pro-developer-owned",
+      "text": "Owned by IT or professional developers with Azure governance and CI/CD discipline",
+      "weight": 7,
+      "applicableTools": ["azure-logic-apps", "azure-functions"]
+    },
+    {
+      "id": "structured-data-entry",
+      "text": "User-facing structured data entry and interaction",
+      "weight": 8,
+      "applicableTools": ["power-apps"]
+    },
+    {
+      "id": "internal-business-process",
+      "text": "Internal business process for employees",
+      "weight": 6,
+      "applicableTools": ["power-automate", "power-apps", "copilot-studio"]
+    },
+    {
+      "id": "knowledge-base-selfservice",
+      "text": "Employee self-service or knowledge-base retrieval",
+      "weight": 7,
+      "applicableTools": ["copilot-studio"]
+    },
+    {
+      "id": "onprem-legacy-b2b",
+      "text": "On-premises, legacy, or B2B/EDI integration",
+      "weight": 9,
+      "applicableTools": ["azure-logic-apps"]
+    },
+    {
+      "id": "high-volume-throughput",
+      "text": "High-volume, low-latency processing with enterprise-grade monitoring and retries",
+      "weight": 8,
+      "applicableTools": ["azure-logic-apps", "azure-functions"]
     }
   ],
   "redFlags": [
@@ -106,6 +148,36 @@
       "text": "Not conversational interface",
       "weight": 9,
       "applicableTools": ["copilot-studio"]
+    },
+    {
+      "id": "no-pro-dev-ownership",
+      "text": "No appetite for pro-developer or IT ownership",
+      "weight": 7,
+      "applicableTools": ["azure-logic-apps", "azure-functions"]
+    },
+    {
+      "id": "external-facing-audience",
+      "text": "External-facing or public audience",
+      "weight": 7,
+      "applicableTools": ["power-apps"]
+    },
+    {
+      "id": "volume-beyond-low-code",
+      "text": "High-volume, mission-critical execution beyond low-code limits",
+      "weight": 8,
+      "applicableTools": ["power-automate", "power-apps"]
+    },
+    {
+      "id": "simple-internal-process",
+      "text": "Simple internal process a citizen developer could own",
+      "weight": 6,
+      "applicableTools": ["azure-logic-apps"]
+    },
+    {
+      "id": "requires-custom-code",
+      "text": "Requires custom code or complex algorithms",
+      "weight": 9,
+      "applicableTools": ["power-automate", "power-apps", "azure-logic-apps"]
     }
   ],
   "questions": [
@@ -138,26 +210,53 @@
       "text": "Do you need natural language processing or chatbot?",
       "type": "yes-no",
       "position": 5
+    },
+    {
+      "id": "q6-audience",
+      "text": "Who will use this solution?",
+      "type": "multiple-choice",
+      "position": 6,
+      "options": [
+        { "id": "internal", "label": "Internal employees" },
+        { "id": "external", "label": "External customers or the public" }
+      ]
+    },
+    {
+      "id": "q7-enterprise-scale",
+      "text": "Does this need enterprise-scale throughput, monitoring, or on-premises/B2B integration?",
+      "type": "yes-no",
+      "position": 7
+    },
+    {
+      "id": "q6-ownership",
+      "text": "Who will own and maintain this solution day to day?",
+      "type": "multiple-choice",
+      "position": 8,
+      "isTiebreaker": true,
+      "options": [
+        { "id": "business-team", "label": "Business users or citizen developers" },
+        { "id": "it-team", "label": "IT or professional developers" }
+      ]
     }
   ],
   "questionMappings": [
     {
       "questionId": "q1-ui",
       "answerValue": "yes",
-      "activatedSignalIds": ["ui-required", "cloud-connectors"],
-      "activatedRedFlagIds": []
+      "activatedSignalIds": ["ui-required", "structured-data-entry", "cloud-connectors"],
+      "activatedRedFlagIds": ["needs-ui"]
     },
     {
       "questionId": "q1-ui",
       "answerValue": "no",
       "activatedSignalIds": ["backend-automation-only"],
-      "activatedRedFlagIds": ["needs-ui"]
+      "activatedRedFlagIds": ["no-ui-needed"]
     },
     {
       "questionId": "q2-custom-code",
       "answerValue": "yes",
       "activatedSignalIds": ["custom-code-logic"],
-      "activatedRedFlagIds": []
+      "activatedRedFlagIds": ["requires-custom-code"]
     },
     {
       "questionId": "q2-custom-code",
@@ -192,7 +291,11 @@
     {
       "questionId": "q5-nlp",
       "answerValue": "yes",
-      "activatedSignalIds": ["natural-language-ai", "conversational-interface"],
+      "activatedSignalIds": [
+        "natural-language-ai",
+        "conversational-interface",
+        "knowledge-base-selfservice"
+      ],
       "activatedRedFlagIds": []
     },
     {
@@ -200,9 +303,58 @@
       "answerValue": "no",
       "activatedSignalIds": [],
       "activatedRedFlagIds": ["not-conversational"]
+    },
+    {
+      "questionId": "q6-audience",
+      "answerValue": "internal",
+      "activatedSignalIds": ["internal-business-process"],
+      "activatedRedFlagIds": []
+    },
+    {
+      "questionId": "q6-audience",
+      "answerValue": "external",
+      "activatedSignalIds": [],
+      "activatedRedFlagIds": ["external-facing-audience"]
+    },
+    {
+      "questionId": "q7-enterprise-scale",
+      "answerValue": "yes",
+      "activatedSignalIds": ["onprem-legacy-b2b", "high-volume-throughput"],
+      "activatedRedFlagIds": ["volume-beyond-low-code"]
+    },
+    {
+      "questionId": "q7-enterprise-scale",
+      "answerValue": "no",
+      "activatedSignalIds": [],
+      "activatedRedFlagIds": ["simple-internal-process"]
+    },
+    {
+      "questionId": "q6-ownership",
+      "answerValue": "business-team",
+      "activatedSignalIds": ["citizen-developer-owned"],
+      "activatedRedFlagIds": ["no-pro-dev-ownership"]
+    },
+    {
+      "questionId": "q6-ownership",
+      "answerValue": "it-team",
+      "activatedSignalIds": ["pro-developer-owned"],
+      "activatedRedFlagIds": []
     }
   ],
-  "tiebreakers": [],
+  "tiebreakers": [
+    {
+      "id": "tb-ownership",
+      "questionId": "q6-ownership",
+      "appliesWhen": [
+        "power-automate",
+        "power-apps",
+        "copilot-studio",
+        "azure-logic-apps",
+        "azure-functions"
+      ],
+      "discriminativeSignalIds": ["citizen-developer-owned", "pro-developer-owned"]
+    }
+  ],
   "metadata": {
     "lastUpdated": "2026-09-01",
     "frameworkVersion": "1.0.0"

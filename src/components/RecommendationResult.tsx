@@ -8,40 +8,14 @@ type RecommendationResultProps = {
 
 export function RecommendationResult({ recommendation, onRestart }: RecommendationResultProps) {
   return (
-    <main style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1rem' }}>
-      <section
-        style={{
-          background: '#eff6ff',
-          border: '1px solid #bfdbfe',
-          borderRadius: '16px',
-          padding: '2rem',
-          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)',
-        }}
-      >
-        <p style={{ margin: 0, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#1d4ed8' }}>
-          Recommended tool
-        </p>
-        <h1 style={{ margin: '0.5rem 0 1rem', fontSize: '2.5rem', color: '#0f172a' }}>
-          {recommendation.primaryTool.name}
-        </h1>
-        <p style={{ margin: 0, fontSize: '1.05rem', lineHeight: 1.7, color: '#334155' }}>
-          {recommendation.justification}
-        </p>
+    <main className="result-shell">
+      <section className="result-card">
+        <p className="result-eyebrow">Recommended tool</p>
+        <h1 className="result-title">{recommendation.primaryTool.name}</h1>
+        <p className="result-justification">{recommendation.justification}</p>
 
-        <div style={{ marginTop: '1rem' }}>
-          <button
-            type="button"
-            onClick={onRestart}
-            style={{
-              border: 'none',
-              borderRadius: '10px',
-              background: '#2563eb',
-              color: '#fff',
-              padding: '0.8rem 1.25rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
+        <div className="result-actions">
+          <button type="button" className="button button-primary" onClick={onRestart}>
             Start over
           </button>
         </div>

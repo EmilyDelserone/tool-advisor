@@ -10,23 +10,36 @@ export function ComparisonTable({ runnerUps }: ComparisonTableProps) {
   }
 
   return (
-    <section style={{ marginTop: '2rem' }}>
-      <h2 style={{ marginBottom: '1rem' }}>Runner-up options</h2>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #dbe4f0' }}>
+    <section className="comparison" aria-labelledby="comparison-heading">
+      <h2 id="comparison-heading">Runner-up options</h2>
+      <div className="comparison-scroll">
+        {/* Explicit roles keep table semantics when rows stack on small screens */}
+        <table className="comparison-table" role="table">
           <thead>
-            <tr style={{ background: '#eff6ff' }}>
-              <th style={{ textAlign: 'left', padding: '0.75rem', borderBottom: '1px solid #dbe4f0' }}>Tool</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem', borderBottom: '1px solid #dbe4f0' }}>Use case</th>
-              <th style={{ textAlign: 'left', padding: '0.75rem', borderBottom: '1px solid #dbe4f0' }}>Why not this one?</th>
+            <tr role="row">
+              <th role="columnheader" scope="col">
+                Tool
+              </th>
+              <th role="columnheader" scope="col">
+                Use case
+              </th>
+              <th role="columnheader" scope="col">
+                Why not this one?
+              </th>
             </tr>
           </thead>
           <tbody>
             {runnerUps.map(({ tool, differentiationText }) => (
-              <tr key={tool.id}>
-                <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>{tool.name}</td>
-                <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>{tool.primaryUseCase}</td>
-                <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>{differentiationText}</td>
+              <tr role="row" key={tool.id}>
+                <td role="cell" data-label="Tool">
+                  {tool.name}
+                </td>
+                <td role="cell" data-label="Use case">
+                  {tool.primaryUseCase}
+                </td>
+                <td role="cell" data-label="Why not this one?">
+                  {differentiationText}
+                </td>
               </tr>
             ))}
           </tbody>
