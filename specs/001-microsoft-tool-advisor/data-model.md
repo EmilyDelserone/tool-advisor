@@ -155,6 +155,7 @@ A temporary calculation object during recommendation engine execution.
 | `signalScore` | number | Yes | Sum of weights for matched signals |
 | `redFlagPenalty` | number | Yes | Sum of weights for matched red flags |
 | `netScore` | number | Yes | signalScore - redFlagPenalty |
+| `fitScore` | number | Yes | 0-100. `round(100 × max(0, netScore) ÷ highest signalScore across all tools)`; 0 when no signal matched. The shared denominator keeps percentage order identical to net score order |
 | `matchedSignalIds` | string[] | Yes | Signal IDs that contributed to score |
 | `matchedRedFlagIds` | string[] | Yes | Red flag IDs that contributed to penalty |
 

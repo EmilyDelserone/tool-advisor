@@ -11,6 +11,7 @@ import {
   tokens,
 } from '@fluentui/react-components';
 import type { RunnerUpTool } from '../engine/types';
+import { FitScoreBar } from './FitScoreBar';
 import { GlossaryText } from './GlossaryText';
 
 type ComparisonTableProps = {
@@ -73,11 +74,12 @@ export function ComparisonTable({ runnerUps }: ComparisonTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {runnerUps.map(({ tool, differentiationText }) => (
+            {runnerUps.map(({ tool, differentiationText, fitScore }) => (
               <TableRow role="row" key={tool.id}>
                 <TableCell role="cell" data-label="Tool">
                   <span className={styles.toolCell}>
                     <span className={styles.toolName}>{tool.name}</span>
+                    <FitScoreBar toolName={tool.name} fitScore={fitScore} />
                     <Link href={tool.docsUrl} target="_blank" rel="noopener noreferrer">
                       Learn more about {tool.name} (opens in a new tab)
                     </Link>

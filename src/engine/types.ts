@@ -57,6 +57,8 @@ export interface ToolScore {
   signalScore: number;
   redFlagPenalty: number;
   netScore: number;
+  /** 0-100 share of the strongest signal match, after red flag penalties */
+  fitScore: number;
   matchedSignalIds: string[];
   matchedRedFlagIds: string[];
 }
@@ -64,6 +66,7 @@ export interface ToolScore {
 export interface RunnerUpTool {
   tool: Tool;
   score: number;
+  fitScore: number;
   differentiationText: string;
   matchedSignalIds: string[];
 }
@@ -71,6 +74,7 @@ export interface RunnerUpTool {
 export interface Recommendation {
   primaryTool: Tool;
   score: number;
+  fitScore: number;
   justification: string;
   matchedSignalIds: string[];
   matchedRedFlagIds: string[];

@@ -41,12 +41,17 @@ The wizard is a **stepper**: exactly one question on screen at a time.
 Two elements, in this order, and no more:
 
 1. **Winner card.** A visually prominent Fluent `Card` containing the recommended tool name as the
-   only `h1` on the page, an eyebrow label ("Recommended tool"), the plain-language justification, and
-   the **Start over** button. It must be unmistakably the primary element: brand-tinted surface,
+   only `h1` on the page, an eyebrow label ("Recommended tool"), a fit percentage bar, the
+   plain-language justification, a **Learn more** link to the tool's official documentation, and the
+   **Start over** button. It must be unmistakably the primary element: brand-tinted surface,
    larger type, and clear separation from what follows.
 2. **Comparison table.** A Fluent `Table` beneath the winner card with exactly three columns —
-   *Tool*, *Use case*, *Why not this one?* — one row per runner-up, ordered by descending score. Cells
-   stay under 60 words. On narrow viewports rows stack, with each cell prefixed by its column label.
+   *Tool*, *Use case*, *Why not this one?* — one row per runner-up, ordered by descending score. The
+   Tool cell carries the tool name, its fit percentage bar, and its documentation link. Cells stay
+   under 60 words. On narrow viewports rows stack, with each cell prefixed by its column label.
+
+Fit bars use Fluent `ProgressBar` with a visible `NN% fit` label and an `aria-valuetext` naming the
+tool, so the percentage is never conveyed by the bar alone.
 
 Never render more than one winner. Never let the comparison table compete visually with the winner
 card — it is supporting evidence, not an alternative call to action.

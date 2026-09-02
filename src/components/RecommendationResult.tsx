@@ -1,6 +1,7 @@
 import { Button, Card, Link, Text, Title1, makeStyles, tokens } from '@fluentui/react-components';
 import type { Recommendation } from '../engine/types';
 import { ComparisonTable } from './ComparisonTable';
+import { FitScoreBar } from './FitScoreBar';
 import { GlossaryText } from './GlossaryText';
 
 type RecommendationResultProps = {
@@ -25,6 +26,10 @@ const useStyles = makeStyles({
   title: {
     display: 'block',
     marginTop: tokens.spacingVerticalS,
+    marginBottom: tokens.spacingVerticalM,
+  },
+  fit: {
+    maxWidth: '260px',
     marginBottom: tokens.spacingVerticalM,
   },
   justification: {
@@ -60,6 +65,12 @@ export function RecommendationResult({ recommendation, onRestart }: Recommendati
         <Title1 as="h1" className={styles.title}>
           {recommendation.primaryTool.name}
         </Title1>
+        <div className={styles.fit}>
+          <FitScoreBar
+            toolName={recommendation.primaryTool.name}
+            fitScore={recommendation.fitScore}
+          />
+        </div>
         <Text size={400} className={styles.justification}>
           <GlossaryText text={recommendation.justification} />
         </Text>

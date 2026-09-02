@@ -61,6 +61,29 @@ test.describe('Wizard end-to-end (US1, US2, US3)', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
   });
 
+  test('shows a fit percentage for the winner and each runner-up', async ({ page }) => {
+    await page.goto('/');
+    await walkPath(page, UI_APP_PATH);
+
+    const winnerBar = page.getByRole('progressbar', { name: 'Fit score for Power Apps' });
+    await expect(winnerBar).toBeVisible();
+
+    const winnerFit = Number(await winnerBar.getAttribute('aria-valuenow'));
+    expect(winnerFit).toBeGreaterThan(0);
+    expect(winnerFit).toBeLessThanOrEqual(100);
+
+    const bars = page.getByRole('progressbar', { name: /^Fit score for / });
+    const count = await bars.count();
+    expect(count).toBeGreaterThanOrEqual(2);
+
+    for (let i = 0; i < count; i += 1) {
+      const value = Number(await bars.nth(i).getAttribute('aria-valuenow'));
+      expect(value).toBeLessThanOrEqual(winnerFit);
+    }
+
+    await expect(page.getByText(`${winnerFit}% fit`).first()).toBeVisible();
+  });
+
   test('restarts back to the first question', async ({ page }) => {
     await page.goto('/');
     await walkPath(page, UI_APP_PATH);

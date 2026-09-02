@@ -410,6 +410,7 @@ describe('Recommendation Engine - Unit Tests', () => {
           signalScore: 10,
           redFlagPenalty: 0,
           netScore: 10,
+          fitScore: 0,
           matchedSignalIds: [],
           matchedRedFlagIds: [],
         },
@@ -418,6 +419,7 @@ describe('Recommendation Engine - Unit Tests', () => {
           signalScore: 10,
           redFlagPenalty: 0,
           netScore: 10,
+          fitScore: 0,
           matchedSignalIds: [],
           matchedRedFlagIds: [],
         },
@@ -426,6 +428,7 @@ describe('Recommendation Engine - Unit Tests', () => {
           signalScore: 5,
           redFlagPenalty: 0,
           netScore: 5,
+          fitScore: 0,
           matchedSignalIds: [],
           matchedRedFlagIds: [],
         },
@@ -443,6 +446,7 @@ describe('Recommendation Engine - Unit Tests', () => {
           signalScore: 15,
           redFlagPenalty: 0,
           netScore: 15,
+          fitScore: 0,
           matchedSignalIds: [],
           matchedRedFlagIds: [],
         },
@@ -451,6 +455,7 @@ describe('Recommendation Engine - Unit Tests', () => {
           signalScore: 10,
           redFlagPenalty: 0,
           netScore: 10,
+          fitScore: 0,
           matchedSignalIds: [],
           matchedRedFlagIds: [],
         },
@@ -467,6 +472,7 @@ describe('Recommendation Engine - Unit Tests', () => {
           signalScore: 10,
           redFlagPenalty: 0,
           netScore: 10,
+          fitScore: 0,
           matchedSignalIds: [],
           matchedRedFlagIds: [],
         },
@@ -475,6 +481,7 @@ describe('Recommendation Engine - Unit Tests', () => {
           signalScore: 10,
           redFlagPenalty: 0,
           netScore: 10,
+          fitScore: 0,
           matchedSignalIds: [],
           matchedRedFlagIds: [],
         },
@@ -483,6 +490,7 @@ describe('Recommendation Engine - Unit Tests', () => {
           signalScore: 10,
           redFlagPenalty: 0,
           netScore: 10,
+          fitScore: 0,
           matchedSignalIds: [],
           matchedRedFlagIds: [],
         },
@@ -780,6 +788,197 @@ describe('Recommendation Engine - Unit Tests', () => {
           justificationText.includes('user') ||
           justificationText.includes('interface')
       ).toBe(true);
+    });
+  });
+
+  describe('fit score', () => {
+    const scoreFor = (scores: ReturnType<typeof calculateToolScores>, toolId: string) =>
+      scores.find((score) => score.toolId === toolId)!;
+
+    it('gives the strongest unpenalised tool 100%', () => {
+      const scores = calculateToolScores(
+        ['natural-language-ai', 'conversational-interface'],
+        [],
+        mockSignals,
+        mockRedFlags,
+        mockTools
+      );
+
+      expect(scoreFor(scores, 'copilot-studio').fitScore).toBe(100);
+    });
+
+    it('scores every tool between 0 and 100', () => {
+      const scores = calculateToolScores(
+        ['backend-automation-only', 'scheduled-process', 'cloud-connectors'],
+        ['needs-ui'],
+        mockSignals,
+        mockRedFlags,
+        mockTools
+      );
+
+      scores.forEach((score) => {
+        expect(score.fitScore).toBeGreaterThanOrEqual(0);
+        expect(score.fitScore).toBeLessThanOrEqual(100);
+      });
+    });
+
+    it('reduces the percentage when red flags are triggered', () => {
+      const clean = calculateToolScores(
+        ['backend-automation-only', 'scheduled-process'],
+        [],
+        mockSignals,
+        mockRedFlags,
+        mockTools
+      );
+      const flagged = calculateToolScores(
+        ['backend-automation-only', 'scheduled-process'],
+        ['needs-ui'],
+        mockSignals,
+        mockRedFlags,
+        mockTools
+      );
+
+      expect(scoreFor(clean, 'power-automate').fitScore).toBe(100);
+      expect(scoreFor(flagged, 'power-automate').fitScore).toBeLessThan(100);
+    });
+
+    it('floors tools whose red flags outweigh their signals at 0%', () => {
+      const scores = calculateToolScores(
+        ['ui-required'],
+        ['needs-ui'],
+        mockSignals,
+        mockRedFlags,
+        mockTools
+      );
+
+      expect(scoreFor(scores, 'power-automate').netScore).toBeLessThan(0);
+      expect(scoreFor(scores, 'power-automate').fitScore).toBe(0);
+    });
+
+    it('returns 0% for every tool when nothing matched', () => {
+      const scores = calculateToolScores([], [], mockSignals, mockRedFlags, mockTools);
+
+      scores.forEach((score) => expect(score.fitScore).toBe(0));
+    });
+
+    it('never ranks a lower net score above a higher one', () => {
+      const scores = calculateToolScores(
+        ['backend-automation-only', 'cloud-connectors', 'ui-required'],
+        ['needs-ui', 'simple-automation'],
+        mockSignals,
+        mockRedFlags,
+        mockTools
+      );
+
+      const byNet = [...scores].sort((a, b) => b.netScore - a.netScore);
+
+      for (let i = 1; i < byNet.length; i += 1) {
+        expect(byNet[i - 1].fitScore).toBeGreaterThanOrEqual(byNet[i].fitScore);
+      }
+    });
+
+    it('surfaces the fit score on the recommendation and its runner-ups', () => {
+      const answers: Answer[] = [
+        {
+          questionId: 'q1-ui',
+          value: 'no',
+          timestamp: Date.now(),
+          activatedSignalIds: ['backend-automation-only', 'scheduled-process'],
+          activatedRedFlagIds: [],
+        },
+      ];
+
+      const recommendation = findPrimaryRecommendation(answers, mockRulesFile);
+
+      expect(recommendation.fitScore).toBe(100);
+      recommendation.runnerUps.forEach((runnerUp) => {
+        expect(runnerUp.fitScore).toBeGreaterThanOrEqual(0);
+        expect(runnerUp.fitScore).toBeLessThanOrEqual(recommendation.fitScore);
+      });
+    });
+  });
+
+  describe('close-call scenarios', () => {
+    it('separates two tools that differ by a single mid-weight signal', () => {
+      // Azure Logic Apps: 9 + 8 = 17; Power Automate: 9 (no enterprise integration signal)
+      const scores = calculateToolScores(
+        ['backend-automation-only', 'enterprise-integration'],
+        [],
+        mockSignals,
+        mockRedFlags,
+        mockTools
+      );
+
+      const powerAutomate = scores.find((s) => s.toolId === 'power-automate')!;
+      const logicApps = scores.find((s) => s.toolId === 'azure-logic-apps')!;
+
+      expect(logicApps.netScore).toBeGreaterThan(powerAutomate.netScore);
+      expect(logicApps.fitScore).toBe(100);
+      expect(powerAutomate.fitScore).toBe(53);
+    });
+
+    it('shows a narrow gap when one extra signal barely separates two tools', () => {
+      // Azure Logic Apps: 9 + 7 + 6 + 8 = 30; Power Automate: 9 + 7 + 6 = 22
+      const scores = calculateToolScores(
+        [
+          'backend-automation-only',
+          'scheduled-process',
+          'cloud-connectors',
+          'enterprise-integration',
+        ],
+        [],
+        mockSignals,
+        mockRedFlags,
+        mockTools
+      );
+
+      const powerAutomate = scores.find((s) => s.toolId === 'power-automate')!;
+      const logicApps = scores.find((s) => s.toolId === 'azure-logic-apps')!;
+
+      expect(logicApps.fitScore).toBe(100);
+      expect(powerAutomate.fitScore).toBe(73);
+      expect(detectTie(scores).isTie).toBe(false);
+    });
+
+    it('reports identical percentages for a genuine tie', () => {
+      // Power Automate and Azure Logic Apps both score 9 + 7 + 6 - 9 = 13
+      const scores = calculateToolScores(
+        ['backend-automation-only', 'scheduled-process', 'cloud-connectors'],
+        ['needs-ui'],
+        mockSignals,
+        mockRedFlags,
+        mockTools
+      );
+
+      const powerAutomate = scores.find((s) => s.toolId === 'power-automate')!;
+      const logicApps = scores.find((s) => s.toolId === 'azure-logic-apps')!;
+
+      expect(powerAutomate.fitScore).toBe(logicApps.fitScore);
+      expect(detectTie(scores).isTie).toBe(true);
+    });
+
+    it('keeps the same winner as before fit scores existed', () => {
+      const answers: Answer[] = [
+        {
+          questionId: 'q1-ui',
+          value: 'yes',
+          timestamp: Date.now(),
+          activatedSignalIds: ['ui-required', 'cloud-connectors'],
+          activatedRedFlagIds: [],
+        },
+        {
+          questionId: 'q2-custom-code',
+          value: 'no',
+          timestamp: Date.now(),
+          activatedSignalIds: [],
+          activatedRedFlagIds: ['simple-automation'],
+        },
+      ];
+
+      const recommendation = findPrimaryRecommendation(answers, mockRulesFile);
+
+      expect(recommendation.primaryTool.id).toBe('power-apps');
+      expect(recommendation.score).toBe(14);
     });
   });
 });

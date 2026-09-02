@@ -110,4 +110,25 @@ describe('Recommendation result (US2, US3)', () => {
       expect(link.getAttribute('rel')).toContain('noreferrer');
     });
   });
+
+  it('shows a fit percentage bar for the winner and every runner-up (FR-019)', () => {
+    render(<RecommendationResult recommendation={recommendation} onRestart={() => {}} />);
+
+    const bars = screen.getAllByRole('progressbar');
+    expect(bars).toHaveLength(1 + recommendation.runnerUps.length);
+
+    expect(
+      screen.getByRole('progressbar', {
+        name: `Fit score for ${recommendation.primaryTool.name}`,
+      }).getAttribute('aria-valuenow')
+    ).toBe(String(recommendation.fitScore));
+
+    expect(screen.getAllByText(`${recommendation.fitScore}% fit`).length).toBeGreaterThan(0);
+
+    recommendation.runnerUps.forEach(({ tool, fitScore }) => {
+      const bar = screen.getByRole('progressbar', { name: `Fit score for ${tool.name}` });
+      expect(bar.getAttribute('aria-valuenow')).toBe(String(fitScore));
+      expect(fitScore).toBeLessThanOrEqual(recommendation.fitScore);
+    });
+  });
 });

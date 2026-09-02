@@ -303,6 +303,7 @@ export function findPrimaryRecommendation(
     return {
       tool,
       score: score.netScore,
+      fitScore: score.fitScore,
       differentiationText,
       matchedSignalIds: score.matchedSignalIds,
     };
@@ -311,6 +312,7 @@ export function findPrimaryRecommendation(
   const recommendation: Recommendation = {
     primaryTool,
     score: primaryToolScore.netScore,
+    fitScore: primaryToolScore.fitScore,
     justification,
     matchedSignalIds: primaryToolScore.matchedSignalIds,
     matchedRedFlagIds: primaryToolScore.matchedRedFlagIds,

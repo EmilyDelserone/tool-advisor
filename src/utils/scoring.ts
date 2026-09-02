@@ -2,6 +2,10 @@ import type { RedFlag, Signal, Tool, ToolScore } from '../engine/types';
 
 /**
  * Score = sum(matching signal weights) - sum(matching red flag weights), per tool.
+ *
+ * fitScore expresses that same result as a 0-100 percentage: each tool's net score as a share of the
+ * strongest signal match in this run. The shared denominator keeps the percentage ordering identical
+ * to the net score ordering, so the winner can never display a lower percentage than a runner-up.
  */
 export function scoreTools(
   activatedSignalIds: string[],
@@ -10,7 +14,7 @@ export function scoreTools(
   redFlags: RedFlag[],
   tools: Tool[]
 ): ToolScore[] {
-  return tools.map((tool) => {
+  const raw = tools.map((tool) => {
     const matchedSignals = signals.filter(
       (signal) =>
         activatedSignalIds.includes(signal.id) && signal.applicableTools.includes(tool.id)
@@ -32,4 +36,12 @@ export function scoreTools(
       matchedRedFlagIds: matchedRedFlags.map((f) => f.id),
     };
   });
+
+  const bestSignalScore = Math.max(0, ...raw.map((score) => score.signalScore));
+
+  return raw.map((score) => ({
+    ...score,
+    fitScore:
+      bestSignalScore === 0 ? 0 : Math.round((Math.max(0, score.netScore) / bestSignalScore) * 100),
+  }));
 }
