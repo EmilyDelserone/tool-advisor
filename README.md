@@ -1,8 +1,8 @@
 # Microsoft Tool Advisor
 
-A client-side wizard that asks a short series of guided questions and recommends the right
-Microsoft tool — Power Automate, Power Apps, Copilot Studio, Azure Logic Apps, or Azure Functions —
-with a plain-language reason and a comparison of runner-up options.
+A wizard that asks a short series of guided questions and recommends the right
+Microsoft tool: Power Automate, Power Apps, Copilot Studio, Azure Logic Apps, or Azure Functions using
+plain-language reason and a comparison of runner-up options.
 
 Every recommendation is derived from the decision framework in
 [docs/decision-framework.md](docs/decision-framework.md). Nothing leaves the browser: no backend,
