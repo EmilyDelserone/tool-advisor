@@ -1,6 +1,7 @@
 import { Card, Text, Title1, makeStyles, tokens } from '@fluentui/react-components';
 import type { RulesFile } from '../engine/types';
 import { useWizardState } from '../hooks/useWizardState';
+import { AnalyzingResultGate } from './AnalyzingResultGate';
 import { ProgressIndicator } from './ProgressIndicator';
 import { QuestionCard } from './QuestionCard';
 import { RecommendationResult } from './RecommendationResult';
@@ -33,11 +34,13 @@ export function WizardContainer({ rules }: WizardContainerProps) {
 
   if (wizard.recommendation) {
     return (
-      <RecommendationResult
-        recommendation={wizard.recommendation}
-        onRestart={wizard.reset}
-        onEditAnswers={wizard.editAnswers}
-      />
+      <AnalyzingResultGate key={wizard.recommendation.generatedAt}>
+        <RecommendationResult
+          recommendation={wizard.recommendation}
+          onRestart={wizard.reset}
+          onEditAnswers={wizard.editAnswers}
+        />
+      </AnalyzingResultGate>
     );
   }
 
@@ -58,6 +61,7 @@ export function WizardContainer({ rules }: WizardContainerProps) {
         <ProgressIndicator
           currentIndex={wizard.currentIndex}
           totalQuestions={wizard.totalQuestions}
+          answeredCount={wizard.answeredCount}
           isTiebreaker={wizard.isTiebreaker}
           steps={wizard.steps}
           onSelectStep={wizard.goToStep}

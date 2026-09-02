@@ -106,6 +106,7 @@ export function useWizardState(rules: RulesFile) {
   };
 
   const allCoreAnswered = coreQuestions.every((question) => answers[question.id]);
+  const answeredCount = steps.filter((step) => step.answered).length;
 
   const goNext = () => {
     if (!currentQuestion || !answers[currentQuestion.id]) {
@@ -160,6 +161,7 @@ export function useWizardState(rules: RulesFile) {
     currentQuestion,
     currentIndex: tiebreakerQuestion ? coreQuestions.length : currentIndex,
     totalQuestions,
+    answeredCount,
     steps,
     isTiebreaker: Boolean(tiebreakerQuestion),
     isLastQuestion,

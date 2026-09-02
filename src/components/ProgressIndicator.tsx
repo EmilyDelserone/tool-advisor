@@ -4,6 +4,7 @@ import type { WizardStep } from '../hooks/useWizardState';
 type ProgressIndicatorProps = {
   currentIndex: number;
   totalQuestions: number;
+  answeredCount?: number;
   isTiebreaker?: boolean;
   steps?: WizardStep[];
   onSelectStep?: (index: number) => void;
@@ -42,16 +43,19 @@ const useStyles = makeStyles({
 export function ProgressIndicator({
   currentIndex,
   totalQuestions,
+  answeredCount = 0,
   isTiebreaker = false,
   steps,
   onSelectStep,
 }: ProgressIndicatorProps) {
   const styles = useStyles();
   const currentPosition = currentIndex + 1;
-  const progress = (currentPosition / totalQuestions) * 100;
+  // Completion counts answered questions, so nothing is "complete" before the first answer
+  const progress = (answeredCount / totalQuestions) * 100;
   const label = isTiebreaker
     ? `Tiebreaker question ${currentPosition} of ${totalQuestions}`
     : `Question ${currentPosition} of ${totalQuestions}`;
+  const completionText = `${answeredCount} of ${totalQuestions} questions answered`;
 
   return (
     <div className={styles.root}>
@@ -62,11 +66,11 @@ export function ProgressIndicator({
       <ProgressBar
         thickness="large"
         aria-label="Wizard progress"
-        aria-valuenow={currentPosition}
-        aria-valuemin={1}
+        aria-valuenow={answeredCount}
+        aria-valuemin={0}
         aria-valuemax={totalQuestions}
-        aria-valuetext={label}
-        value={currentPosition}
+        aria-valuetext={completionText}
+        value={answeredCount}
         max={totalQuestions}
       />
 

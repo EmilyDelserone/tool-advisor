@@ -31,7 +31,8 @@ describe('Wizard question flow (US1)', () => {
     render(<App />);
 
     expect(screen.getByText(`Question 1 of ${CORE_QUESTION_COUNT}`)).toBeTruthy();
-    expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('1');
+    expect(screen.getByText('0% complete')).toBeTruthy();
+    expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('0');
     expect(screen.getByRole('progressbar').getAttribute('aria-valuemax')).toBe(
       String(CORE_QUESTION_COUNT)
     );
@@ -79,8 +80,9 @@ describe('Wizard question flow (US1)', () => {
 
     await walkPath(user, UI_APP_PATH);
 
-    expect(screen.getByText('Recommended tool')).toBeTruthy();
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Power Apps');
+    expect(screen.getByText('Analyzing your answers...')).toBeTruthy();
+    expect(await screen.findByText('Recommended tool')).toBeTruthy();
+    expect((await screen.findByRole('heading', { level: 1 })).textContent).toBe('Power Apps');
   });
 
   it('asks the tiebreaker question when tools tie, then resolves to one tool (FR-005a, SC-007)', async () => {
@@ -97,8 +99,9 @@ describe('Wizard question flow (US1)', () => {
     await user.click(screen.getByLabelText('Business users or citizen developers'));
     await user.click(screen.getByRole('button', { name: /see recommendation/i }));
 
-    expect(screen.getByText('Recommended tool')).toBeTruthy();
-    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(screen.getByText('Analyzing your answers...')).toBeTruthy();
+    expect(await screen.findByText('Recommended tool')).toBeTruthy();
+    expect(await screen.findAllByRole('heading', { level: 1 })).toHaveLength(1);
   });
 
   it('restarts the wizard back to question 1 (FR-010)', async () => {
@@ -106,6 +109,7 @@ describe('Wizard question flow (US1)', () => {
     render(<App />);
 
     await walkPath(user, UI_APP_PATH);
+  await screen.findByText('Recommended tool');
     await user.click(screen.getByRole('button', { name: /start over/i }));
 
     expect(screen.getByText(`Question 1 of ${CORE_QUESTION_COUNT}`)).toBeTruthy();
@@ -140,7 +144,7 @@ describe('Wizard question flow (US1)', () => {
     render(<App />);
 
     await walkPath(user, UI_APP_PATH);
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Power Apps');
+  expect((await screen.findByRole('heading', { level: 1 })).textContent).toBe('Power Apps');
 
     await user.click(screen.getByRole('button', { name: /change an answer/i }));
     await user.click(screen.getAllByRole('radio')[1]); // needs a UI? -> No
@@ -149,7 +153,7 @@ describe('Wizard question flow (US1)', () => {
       await user.click(screen.getByRole('button', { name: /next|see recommendation/i }));
     }
 
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Power Automate');
+    expect((await screen.findByRole('heading', { level: 1 })).textContent).toBe('Power Automate');
   });
 
   it('keeps the fit score in step with the edited answers (FR-019, FR-021)', async () => {
@@ -157,8 +161,7 @@ describe('Wizard question flow (US1)', () => {
     render(<App />);
 
     await walkPath(user, UI_APP_PATH);
-    const before = screen
-      .getByRole('progressbar', { name: 'Fit score for Power Apps' })
+    const before = (await screen.findByRole('progressbar', { name: 'Fit score for Power Apps' }))
       .getAttribute('aria-valuenow');
 
     await user.click(screen.getByRole('button', { name: /change an answer/i }));
@@ -168,8 +171,7 @@ describe('Wizard question flow (US1)', () => {
       await user.click(screen.getByRole('button', { name: /next|see recommendation/i }));
     }
 
-    const after = screen
-      .getByRole('progressbar', { name: 'Fit score for Power Automate' })
+    const after = (await screen.findByRole('progressbar', { name: 'Fit score for Power Automate' }))
       .getAttribute('aria-valuenow');
 
     expect(before).toBe('100');
