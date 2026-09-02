@@ -172,6 +172,7 @@ Part-way through the wizard, or after seeing the recommendation, the user realis
 - **DR-008**: Error states MUST render in the same card layout as the wizard, carry `role="alert"`, and use plain language with no stack traces or technical identifiers
 - **DR-009**: Technical terms in question and recommendation copy MUST offer an on-demand plain-English definition with one concrete example. The affordance MUST open on mouse hover, on touch tap, and from the keyboard, and MUST NOT change the user's answer when activated
 - **DR-010**: Each tool MUST be accompanied by a distinct icon wherever it is named as a recommendation or runner-up, and in question copy that names a tool. Icons MUST be decorative (`aria-hidden`) with the tool name always present as text. Icons MUST come from an MIT-licensed set — the official Microsoft Power Platform and Azure icon sets are licensed only for "architectural diagrams, training materials, or documentation" and MUST NOT be embedded in this product UI without explicit permission from Microsoft
+- **DR-011**: Fit score bars MUST fill from zero to their value over approximately 500ms when the results appear, staggered so the winner and each runner-up do not animate in unison. The announced value MUST remain the final score throughout, and the animation MUST be disabled under `prefers-reduced-motion: reduce`
 
 ### Non-Functional Requirements
 

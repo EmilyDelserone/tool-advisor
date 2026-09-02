@@ -107,7 +107,7 @@ export function ComparisonTable({ runnerUps }: ComparisonTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {runnerUps.map((runnerUp) => {
+            {runnerUps.map((runnerUp, runnerUpIndex) => {
               const { tool, differentiationText, fitScore, redFlagBreakdown, redFlagPenalty } =
                 runnerUp;
               const isExpanded = expanded.includes(tool.id);
@@ -122,7 +122,11 @@ export function ComparisonTable({ runnerUps }: ComparisonTableProps) {
                         <ToolIcon toolId={tool.id} />
                         <span className={styles.toolName}>{tool.name}</span>
                       </span>
-                        <FitScoreBar toolName={tool.name} fitScore={fitScore} />
+                        <FitScoreBar
+                          toolName={tool.name}
+                          fitScore={fitScore}
+                          order={runnerUpIndex + 1}
+                        />
                         <Link href={tool.docsUrl} target="_blank" rel="noopener noreferrer">
                           Learn more about {tool.name} (opens in a new tab)
                         </Link>

@@ -57,7 +57,10 @@ Two elements, in this order, and no more:
    under 60 words. On narrow viewports rows stack, with each cell prefixed by its column label.
 
 Fit bars use Fluent `ProgressBar` with a visible `NN% fit` label and an `aria-valuetext` naming the
-tool, so the percentage is never conveyed by the bar alone.
+tool, so the percentage is never conveyed by the bar alone. They fill from zero over 500ms when the
+results appear, staggered 120ms apart (winner first, then each runner-up), using a CSS animation
+rather than animated React state so assistive tech always reads the final value. The animation is
+suppressed under `prefers-reduced-motion: reduce`.
 
 Each runner-up row carries a **collapsed-by-default** disclosure listing the framework red flags that
 lowered its fit score and their point cost. The toggle is a Fluent `Button` with `aria-expanded` and

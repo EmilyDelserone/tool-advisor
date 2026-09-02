@@ -86,6 +86,7 @@ export function RecommendationResult({
           <FitScoreBar
             toolName={recommendation.primaryTool.name}
             fitScore={recommendation.fitScore}
+            order={0}
           />
         </div>
         <Text size={400} className={styles.justification}>
