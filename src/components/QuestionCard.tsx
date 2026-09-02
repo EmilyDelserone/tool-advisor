@@ -7,12 +7,14 @@ import {
   makeStyles,
   tokens,
 } from '@fluentui/react-components';
-import type { Question } from '../engine/types';
+import type { Question, Tool } from '../engine/types';
 import { GlossaryText, findGlossaryEntry } from './GlossaryText';
 import { GlossaryTerm } from './GlossaryTerm';
+import { ToolIcon } from './ToolIcon';
 
 type QuestionCardProps = {
   question: Question;
+  tools?: Tool[];
   selectedValue?: string;
   isLastQuestion: boolean;
   canGoBack: boolean;
@@ -34,6 +36,11 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase500,
     fontWeight: tokens.fontWeightSemibold,
     marginBottom: tokens.spacingVerticalM,
+  },
+  questionRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: tokens.spacingHorizontalS,
   },
   options: {
     display: 'grid',
@@ -57,6 +64,7 @@ const useStyles = makeStyles({
 
 export function QuestionCard({
   question,
+  tools = [],
   selectedValue,
   isLastQuestion,
   canGoBack,
@@ -70,6 +78,9 @@ export function QuestionCard({
     { id: 'no', label: 'No' },
   ];
 
+  const toolNamedIn = (text: string) => tools.find((tool) => text.includes(tool.name));
+  const questionTool = toolNamedIn(question.text);
+
   return (
     <form
       className={styles.form}
@@ -81,9 +92,12 @@ export function QuestionCard({
       }}
     >
       <Card className={styles.optionsCard}>
-        <Text as="h2" className={styles.question}>
-          <GlossaryText text={question.text} />
-        </Text>
+        <span className={styles.questionRow}>
+          {questionTool ? <ToolIcon toolId={questionTool.id} /> : null}
+          <Text as="h2" className={styles.question}>
+            <GlossaryText text={question.text} />
+          </Text>
+        </span>
 
         <RadioGroup
           className={styles.options}
@@ -96,9 +110,11 @@ export function QuestionCard({
           {options.map((option) => {
             // Trigger sits outside the <label> so opening it cannot select the radio
             const entry = findGlossaryEntry(option.label);
+            const optionTool = toolNamedIn(option.label);
 
             return (
               <div className={styles.option} key={option.id}>
+                {optionTool ? <ToolIcon toolId={optionTool.id} /> : null}
                 <Radio value={option.id} label={option.label} />
                 {entry ? <GlossaryTerm entry={entry} /> : null}
               </div>

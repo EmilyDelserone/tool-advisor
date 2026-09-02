@@ -3,6 +3,7 @@ import type { Recommendation } from '../engine/types';
 import { ComparisonTable } from './ComparisonTable';
 import { FitScoreBar } from './FitScoreBar';
 import { GlossaryText } from './GlossaryText';
+import { ToolIcon } from './ToolIcon';
 
 type RecommendationResultProps = {
   recommendation: Recommendation;
@@ -28,6 +29,11 @@ const useStyles = makeStyles({
     display: 'block',
     marginTop: tokens.spacingVerticalS,
     marginBottom: tokens.spacingVerticalM,
+  },
+  titleRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: tokens.spacingHorizontalM,
   },
   fit: {
     maxWidth: '260px',
@@ -70,9 +76,12 @@ export function RecommendationResult({
     <main className="result-shell">
       <Card className={styles.winnerCard}>
         <Text className={styles.eyebrow}>Recommended tool</Text>
-        <Title1 as="h1" className={styles.title}>
-          {recommendation.primaryTool.name}
-        </Title1>
+        <div className={styles.titleRow}>
+          <ToolIcon toolId={recommendation.primaryTool.id} size="large" />
+          <Title1 as="h1" className={styles.title}>
+            {recommendation.primaryTool.name}
+          </Title1>
+        </div>
         <div className={styles.fit}>
           <FitScoreBar
             toolName={recommendation.primaryTool.name}

@@ -97,6 +97,19 @@ Technical vocabulary in question and recommendation copy carries an inline defin
   cannot change the user's answer.
 - Annotate only the first mention of a term in a given block of copy.
 
+## Tool icons
+
+Every tool carries a distinct glyph next to its name: prominently beside the winner, in each
+runner-up row, and in question copy that names a tool. The mapping lives in `src/components/ToolIcon.tsx`.
+
+Icons come from **`@fluentui/react-icons`** (MIT). The official Microsoft Power Platform and Azure
+icon sets are deliberately **not** used: both are licensed for "architectural diagrams, training
+materials, or documentation" only, which does not cover a product UI. Do not add them without
+explicit written permission from Microsoft.
+
+Icons are decorative — always `aria-hidden`, always accompanied by the tool name as text, so screen
+readers announce the name once.
+
 ## Content and tone
 
 - Business language, never developer jargon (FR-009).

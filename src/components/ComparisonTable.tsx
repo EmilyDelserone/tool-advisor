@@ -16,6 +16,7 @@ import {
 import type { RunnerUpTool } from '../engine/types';
 import { FitScoreBar } from './FitScoreBar';
 import { GlossaryText } from './GlossaryText';
+import { ToolIcon } from './ToolIcon';
 
 type ComparisonTableProps = {
   runnerUps: RunnerUpTool[];
@@ -39,6 +40,11 @@ const useStyles = makeStyles({
   },
   toolName: {
     fontWeight: tokens.fontWeightSemibold,
+  },
+  toolNameRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: tokens.spacingHorizontalXS,
   },
   detailsToggle: {
     marginTop: tokens.spacingVerticalXS,
@@ -112,7 +118,10 @@ export function ComparisonTable({ runnerUps }: ComparisonTableProps) {
                   <TableRow role="row">
                     <TableCell role="cell" data-label="Tool">
                       <span className={styles.toolCell}>
+                      <span className={styles.toolNameRow}>
+                        <ToolIcon toolId={tool.id} />
                         <span className={styles.toolName}>{tool.name}</span>
+                      </span>
                         <FitScoreBar toolName={tool.name} fitScore={fitScore} />
                         <Link href={tool.docsUrl} target="_blank" rel="noopener noreferrer">
                           Learn more about {tool.name} (opens in a new tab)

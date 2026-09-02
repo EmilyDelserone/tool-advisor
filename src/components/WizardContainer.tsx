@@ -65,6 +65,7 @@ export function WizardContainer({ rules }: WizardContainerProps) {
         <QuestionCard
           key={wizard.currentQuestion.id}
           question={wizard.currentQuestion}
+          tools={rules.tools}
           selectedValue={wizard.selectedValue}
           isLastQuestion={wizard.isLastQuestion}
           canGoBack={wizard.canGoBack}
