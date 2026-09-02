@@ -53,6 +53,11 @@ Two elements, in this order, and no more:
 Fit bars use Fluent `ProgressBar` with a visible `NN% fit` label and an `aria-valuetext` naming the
 tool, so the percentage is never conveyed by the bar alone.
 
+Each runner-up row carries a **collapsed-by-default** disclosure listing the framework red flags that
+lowered its fit score and their point cost. The toggle is a Fluent `Button` with `aria-expanded` and
+`aria-controls`, operable by click, tap, and keyboard. The content comes from the engine's
+`redFlagBreakdown` — never recompute scoring in a component.
+
 Never render more than one winner. Never let the comparison table compete visually with the winner
 card — it is supporting evidence, not an alternative call to action.
 

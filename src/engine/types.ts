@@ -63,12 +63,23 @@ export interface ToolScore {
   matchedRedFlagIds: string[];
 }
 
+/** A single framework item and the weight it contributed to (or removed from) a tool's score */
+export interface ScoreContribution {
+  id: string;
+  text: string;
+  weight: number;
+}
+
 export interface RunnerUpTool {
   tool: Tool;
   score: number;
   fitScore: number;
   differentiationText: string;
   matchedSignalIds: string[];
+  matchedRedFlagIds: string[];
+  /** Red flags that reduced this tool's fit score, heaviest first */
+  redFlagBreakdown: ScoreContribution[];
+  redFlagPenalty: number;
 }
 
 export interface Recommendation {

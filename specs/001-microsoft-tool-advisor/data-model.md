@@ -184,8 +184,12 @@ An alternative tool shown in the comparison table.
 |-------|------|----------|-------------|
 | `tool` | Tool | Yes | The runner-up tool |
 | `score` | number | Yes | Net score of this tool |
+| `fitScore` | number | Yes | 0-100 fit percentage (see ToolScore) |
 | `differentiationText` | string | Yes | Why the primary is a better fit (cites up to 2 signals it missed and up to 2 red flags it hit) |
 | `matchedSignalIds` | string[] | Yes | Signal IDs this tool matched |
+| `matchedRedFlagIds` | string[] | Yes | Red flag IDs that penalised this tool |
+| `redFlagBreakdown` | ScoreContribution[] | Yes | `{ id, text, weight }` per matched red flag, heaviest first, for the expandable row |
+| `redFlagPenalty` | number | Yes | Total weight removed by red flags |
 
 ### 10. Tiebreaker
 

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import rulesData from '../../src/data/rules.json';
 import { findPrimaryRecommendation } from '../../src/engine/recommendationEngine';
 import type { Answer, RulesFile } from '../../src/engine/types';
@@ -118,9 +119,11 @@ describe('Recommendation result (US2, US3)', () => {
     expect(bars).toHaveLength(1 + recommendation.runnerUps.length);
 
     expect(
-      screen.getByRole('progressbar', {
-        name: `Fit score for ${recommendation.primaryTool.name}`,
-      }).getAttribute('aria-valuenow')
+      screen
+        .getByRole('progressbar', {
+          name: `Fit score for ${recommendation.primaryTool.name}`,
+        })
+        .getAttribute('aria-valuenow')
     ).toBe(String(recommendation.fitScore));
 
     expect(screen.getAllByText(`${recommendation.fitScore}% fit`).length).toBeGreaterThan(0);
@@ -129,6 +132,96 @@ describe('Recommendation result (US2, US3)', () => {
       const bar = screen.getByRole('progressbar', { name: `Fit score for ${tool.name}` });
       expect(bar.getAttribute('aria-valuenow')).toBe(String(fitScore));
       expect(fitScore).toBeLessThanOrEqual(recommendation.fitScore);
+    });
+  });
+
+  it('keeps each runner-up breakdown collapsed by default (FR-020)', () => {
+    render(<RecommendationResult recommendation={recommendation} onRestart={() => {}} />);
+
+    recommendation.runnerUps.forEach(({ tool, redFlagBreakdown }) => {
+      const toggle = screen.getByRole('button', {
+        name: new RegExp(`show what lowered ${tool.name}`, 'i'),
+      });
+
+      expect(toggle.getAttribute('aria-expanded')).toBe('false');
+
+      redFlagBreakdown.forEach((flag) => {
+        expect(screen.queryByText(new RegExp(flag.text, 'i'))).toBeNull();
+      });
+    });
+  });
+
+  it('reveals the engine red flag breakdown when expanded (FR-020)', async () => {
+    const user = userEvent.setup();
+
+    // q1 "yes" activates the needs-ui red flag, so the runner-ups carry a penalty
+    const flagged = findPrimaryRecommendation(
+      [
+        {
+          questionId: 'q1-ui',
+          value: 'yes',
+          timestamp: 0,
+          activatedSignalIds: ['ui-required', 'structured-data-entry', 'cloud-connectors'],
+          activatedRedFlagIds: ['needs-ui'],
+        },
+      ],
+      rules
+    );
+
+    render(<RecommendationResult recommendation={flagged} onRestart={() => {}} />);
+
+    const runnerUp = flagged.runnerUps.find((item) => item.redFlagBreakdown.length > 0);
+    expect(runnerUp, 'expected a runner-up with red flags in this scenario').toBeTruthy();
+
+    const toggle = screen.getByRole('button', {
+      name: new RegExp(`show what lowered ${runnerUp!.tool.name}`, 'i'),
+    });
+
+    await user.click(toggle);
+
+    expect(
+      screen
+        .getByRole('button', { name: new RegExp(`hide what lowered ${runnerUp!.tool.name}`, 'i') })
+        .getAttribute('aria-expanded')
+    ).toBe('true');
+
+    runnerUp!.redFlagBreakdown.forEach((flag) => {
+      expect(screen.getByText(new RegExp(`\\(\u2212${flag.weight} points\\)`))).toBeTruthy();
+    });
+
+    expect(screen.getByText(new RegExp(`cost ${runnerUp!.tool.name}`, 'i'))).toBeTruthy();
+  });
+
+  it('collapses again on a second activation (FR-020)', async () => {
+    const user = userEvent.setup();
+    render(<RecommendationResult recommendation={recommendation} onRestart={() => {}} />);
+
+    const name = recommendation.runnerUps[0].tool.name;
+    await user.click(
+      screen.getByRole('button', { name: new RegExp(`show what lowered ${name}`, 'i') })
+    );
+    await user.click(
+      screen.getByRole('button', { name: new RegExp(`hide what lowered ${name}`, 'i') })
+    );
+
+    expect(
+      screen
+        .getByRole('button', { name: new RegExp(`show what lowered ${name}`, 'i') })
+        .getAttribute('aria-expanded')
+    ).toBe('false');
+  });
+
+  it('sources the breakdown from the engine, not the UI (FR-020)', () => {
+    recommendation.runnerUps.forEach((runnerUp) => {
+      const expected = rules.redFlags
+        .filter((flag) => runnerUp.matchedRedFlagIds.includes(flag.id))
+        .map((flag) => flag.id)
+        .sort();
+
+      expect(runnerUp.redFlagBreakdown.map((flag) => flag.id).sort()).toEqual(expected);
+      expect(runnerUp.redFlagBreakdown.reduce((sum, flag) => sum + flag.weight, 0)).toBe(
+        runnerUp.redFlagPenalty
+      );
     });
   });
 });

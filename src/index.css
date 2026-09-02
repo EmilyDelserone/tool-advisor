@@ -36,6 +36,14 @@ body {
   vertical-align: top;
 }
 
+/* Fluent sets a fixed row height; our cells stack content and must grow instead */
+.comparison-table tr,
+.comparison-table td,
+.comparison-table th {
+  height: auto;
+  min-height: 0;
+}
+
 /* Tablet: stack comparison rows, labelling each cell with its column */
 @media (max-width: 768px) {
   .wizard-shell,

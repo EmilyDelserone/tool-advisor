@@ -300,12 +300,20 @@ export function findPrimaryRecommendation(
       rulesFile.redFlags
     );
 
+    const redFlagBreakdown = rulesFile.redFlags
+      .filter((flag) => score.matchedRedFlagIds.includes(flag.id))
+      .map((flag) => ({ id: flag.id, text: flag.text, weight: flag.weight }))
+      .sort((a, b) => b.weight - a.weight);
+
     return {
       tool,
       score: score.netScore,
       fitScore: score.fitScore,
       differentiationText,
       matchedSignalIds: score.matchedSignalIds,
+      matchedRedFlagIds: score.matchedRedFlagIds,
+      redFlagBreakdown,
+      redFlagPenalty: score.redFlagPenalty,
     };
   });
 

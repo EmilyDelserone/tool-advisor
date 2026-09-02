@@ -127,6 +127,7 @@ The entire tool advisor experience — questions, decision logic, recommendation
 - **FR-017**: Every tool definition in `rules.json` MUST carry a `docsUrl` pointing at that tool's official Microsoft Learn documentation
 - **FR-018**: The results view MUST offer a "Learn more" link to the recommended tool's official documentation, and one link per runner-up in the comparison table. Links MUST open in a new tab with `rel="noopener noreferrer"` and MUST name their destination for screen reader users
 - **FR-019**: The engine MUST compute a 0-100 fit score for every candidate tool from the signals it matched against the red flags it triggered, and the results view MUST show it as a percentage bar for the recommended tool and each runner-up. The fit score is presentational only — it MUST NOT change which tool wins, and a runner-up MUST never display a higher percentage than the recommended tool
+- **FR-020**: Each runner-up row MUST be expandable, collapsed by default, revealing the specific framework red flags that lowered that tool's fit score with their point cost in plain language. The breakdown MUST come from the engine's score data, not be recomputed in the UI, and MUST be operable by click, tap, and keyboard with `aria-expanded` state
 
 ### Design & Usability Requirements
 

@@ -84,8 +84,7 @@ test.describe('Wizard end-to-end (US1, US2, US3)', () => {
     await expect(page.getByText(`${winnerFit}% fit`).first()).toBeVisible();
   });
 
-  test('restarts back to the first question', async ({ page }) => {
-    await page.goto('/');
+  test('restarts back to the first question', async ({ page }) => {    await page.goto('/');
     await walkPath(page, UI_APP_PATH);
 
     await page.getByRole('button', { name: /start over/i }).click();
