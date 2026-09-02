@@ -16,6 +16,12 @@
 - Q: How should the recommendation algorithm handle ties when multiple tools match equally well? → A: Ask a tiebreaker question to differentiate
 - Q: How should the decision framework data be represented in the tool? → A: Manually curate a separate "rules.json" file based on the decision framework, maintained in sync
 
+### Session 2026-09-02
+
+- Q: How should the fit percentage be normalised so it cannot contradict the ranking? → A: Divide every tool's net score by the highest signal score in the same run. A shared denominator keeps percentage order identical to net score order, so a runner-up can never display a higher percentage than the winner
+- Q: What should the expandable runner-up row reveal, and where does that content come from? → A: The specific framework red flags that reduced that tool's fit score, with their point cost, taken from the engine's score data rather than recomputed in the UI
+- Q: When a user edits an earlier answer, which later answers should be discarded? → A: Only answers that depend on superseded scoring. The core questions are independent of one another so their answers are preserved; the tiebreaker answer is discarded because the tie that prompted it may no longer exist
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Discovery Through Guided Questions (Priority: P1)
@@ -32,6 +38,7 @@ A business analyst needs to identify which Microsoft tool is best for a specific
 2. **Given** the user is on question N of a series, **When** they submit an answer, **Then** they see question N+1 (or finish if it's the last question)
 3. **Given** the user is viewing a question, **When** they review the progress indicator, **Then** it clearly shows how many questions remain (e.g., "Question 2 of 5")
 4. **Given** the wizard has displayed all questions, **When** the user completes the final question, **Then** the results view is displayed
+5. **Given** the user is on a later question, **When** they select an earlier step in the progress indicator, **Then** that question is shown again with their previous answer still selected
 
 ---
 
@@ -49,6 +56,7 @@ After answering all questions, the user receives a clear, primary tool recommend
 2. **Given** a primary recommendation is displayed, **When** the user reads the justification text, **Then** it includes specific reasons from the decision framework (e.g., "This recommendation aligns with your need for X and avoids the red flag of Y")
 3. **Given** the user sees a recommendation, **When** they review the explanation, **Then** it uses business-friendly language, not technical jargon
 4. **Given** the results are displayed, **When** the user reviews the primary tool section, **Then** it is visually distinct (color, size, emphasis) from secondary information
+5. **Given** the results are displayed, **When** the user looks at the recommended tool, **Then** a 0-100% fit score is shown as a labelled percentage bar alongside it
 
 ---
 
@@ -66,6 +74,8 @@ Below the primary recommendation, the user sees a comparison table showing 1-2 r
 2. **Given** the comparison table is displayed, **When** the user reviews each row, **Then** it includes the runner-up tool name, primary use case, and key differentiator from the primary recommendation
 3. **Given** the runner-up tools are shown, **When** the user compares them to the primary, **Then** they understand why the primary is the better fit for their specific answers
 4. **Given** the results view, **When** the user sees the comparison table, **Then** it is clearly organized and easier to scan than the full decision framework
+5. **Given** each runner-up row, **When** the user reviews it, **Then** its fit score is shown as a percentage bar that never exceeds the recommended tool's percentage
+6. **Given** a runner-up row is collapsed by default, **When** the user activates its disclosure by click, tap, or keyboard, **Then** the specific framework red flags that lowered that tool's fit score are listed in plain language with their point cost
 
 ---
 
@@ -86,13 +96,33 @@ The entire tool advisor experience — questions, decision logic, recommendation
 
 ---
 
+### User Story 5 - Revisiting and Changing an Answer (Priority: P2)
+
+Part-way through the wizard, or after seeing the recommendation, the user realises an earlier answer was wrong or wants to explore a different scenario. They return to that question directly — via Back, the step list, or a "Change an answer" action on the results view — change it, and see the recommendation and every fit score recalculated, without answering the whole interview again.
+
+**Why this priority**: The interview is short but not trivial; forcing a full restart to correct one answer discourages exploration and makes the tool feel brittle. It is P2 because the core recommendation loop (US1-US4) delivers value without it.
+
+**Independent Test**: Can be fully tested by completing the wizard, returning to an earlier question, changing that answer, and verifying that the remaining answers are retained, the recommendation is recomputed, and the fit percentages match the new answer set.
+
+**Acceptance Scenarios**:
+
+1. **Given** the user has answered several questions, **When** they select an earlier step in the progress indicator, **Then** that question is displayed with its previous answer selected and no answers are lost
+2. **Given** the user is viewing the results, **When** they choose "Change an answer", **Then** the wizard reopens with every previous answer preserved
+3. **Given** the user changes an earlier answer, **When** they return to the results, **Then** the recommendation, runner-ups, and all fit percentages reflect the edited answer set
+4. **Given** a tiebreaker was previously asked, **When** the user changes a core answer, **Then** the tiebreaker answer is discarded and the tiebreaker is only asked again if the new answers still tie
+5. **Given** the user is on question 2, **When** they look at the step list, **Then** steps beyond the furthest question they have reached are unavailable
+
+---
+
 ### Edge Cases
 
-- What happens if a user goes back/refreshes the browser mid-way through the questions? (Assume wizard restarts from question 1 on page reload — no session persistence required)
-- What if the scoring after 5-7 core questions results in two or more tools tied for the top recommendation? (Ask a tiebreaker question to differentiate; the tiebreaker question is defined in `rules.json` and targets the signals that distinguish the tied tools)
+- What happens if a user goes back/refreshes the browser mid-way through the questions? (Assume wizard restarts from question 1 on page reload — no session persistence required)- What if the scoring after 5-7 core questions results in two or more tools tied for the top recommendation? (Ask a tiebreaker question to differentiate; the tiebreaker question is defined in `rules.json` and targets the signals that distinguish the tied tools)
 - What if a user answers the tiebreaker question but still has a tie? (The algorithm selects the tied tool with the highest overall signal weight; the tiebreaker is deterministic and defined in `rules.json`)
 - What if the decision framework is updated while the tool is open in a browser? (Changes take effect on next page load; no real-time sync required; `rules.json` must be manually updated to reflect framework changes)
 - What if a user's answers don't fit the tool categories well? (Still provide a best-fit recommendation based on scoring; add a caveat in the reasoning explaining the partial match)
+- What if a user changes an earlier answer after a tiebreaker has already been answered? (The tiebreaker answer is discarded because the tie that prompted it may no longer exist; independent core answers are preserved and the wizard re-evaluates)
+- What if no tool scores above zero after red flag penalties? (Every fit percentage is 0% and the justification carries the partial-match caveat; a recommendation is still produced)
+- What if two tools tie and therefore share a fit percentage? (Identical percentages are shown; the tiebreaker question, not the percentage, resolves which tool wins)
 
 ## Requirements *(mandatory)*
 
@@ -155,8 +185,11 @@ The entire tool advisor experience — questions, decision logic, recommendation
 - **Answer**: A user's response to a question, stored in session memory during the wizard
 - **Signal**: A best-fit indicator from the decision framework that supports a tool recommendation (has a weight in `rules.json`)
 - **RedFlag**: A warning indicator from the decision framework that argues against a tool recommendation (has a weight in `rules.json`)
-- **Recommendation**: The selected tool along with its justification reasoning and supporting signals
-- **RunnerUpTool**: An alternative tool shown in the comparison table with key differentiators
+- **Recommendation**: The selected tool along with its justification reasoning, fit score, and supporting signals
+- **RunnerUpTool**: An alternative tool shown in the comparison table with key differentiators, its own fit score, and the red flag breakdown behind that score
+- **ToolScore**: The per-tool scoring result — signal score, red flag penalty, net score, and the 0-100 fit score derived from them
+- **ScoreContribution**: A single framework signal or red flag with the weight it added to or removed from a tool's score, used to explain a runner-up's percentage
+- **WizardStep**: A question's position in the progress indicator, whether it has been answered, and whether it can be jumped to
 - **TiebreakerQuestion**: A question asked when the top-scoring tool is tied with another tool, to provide clear differentiation
 - **RulesFile**: `src/data/rules.json` containing tool definitions, signals, red flags, weights, and tiebreaker logic
 
@@ -172,6 +205,9 @@ The entire tool advisor experience — questions, decision logic, recommendation
 - **SC-006**: Accessibility audit (WCAG 2.1 AA) passes with zero critical/major issues. Verified by an automated axe-core audit (`wcag2a`, `wcag2aa`, `wcag21aa` rule sets) on both the question and results views, plus a manual keyboard-only pass
 - **SC-007**: When tied tools are detected after core questions, a tiebreaker question is presented and results in a clear single-tool recommendation
 - **SC-008**: `rules.json` is loaded successfully and all tool definitions, signals, red flags, and weights are accessible to the recommendation algorithm on startup
+- **SC-009**: Fit percentages never contradict the ranking — in every answer combination, no runner-up displays a percentage above the recommended tool's. Verified by an automated test asserting percentage order matches net score order
+- **SC-010**: A user can correct a single earlier answer and reach an updated recommendation without re-answering the questions they did not change. Verified by an automated test that edits one answer and asserts the remaining answers are retained and the recommendation is recomputed
+- **SC-011**: Every runner-up percentage can be explained on demand — expanding a runner-up lists the framework red flags behind its score, and their weights sum to that tool's total penalty. Verified by an automated test comparing the rendered breakdown against the engine's score data
 
 ## Traceability
 
@@ -180,9 +216,10 @@ The entire tool advisor experience — questions, decision logic, recommendation
 | User story | Functional requirements |
 |------------|-------------------------|
 | US1 Discovery through guided questions | FR-001, FR-001a, FR-001b, FR-002, FR-002a, FR-003, FR-010 |
-| US2 Primary recommendation with justification | FR-004, FR-004a, FR-005, FR-005a, FR-005b, FR-005c, FR-006, FR-006a, FR-009, FR-015 |
-| US3 Comparison table with runner-ups | FR-007, FR-007a, FR-007b, FR-012 |
+| US2 Primary recommendation with justification | FR-004, FR-004a, FR-005, FR-005a, FR-005b, FR-005c, FR-006, FR-006a, FR-009, FR-015, FR-019 |
+| US3 Comparison table with runner-ups | FR-007, FR-007a, FR-007b, FR-012, FR-017, FR-018, FR-019, FR-020 |
 | US4 Client-side completeness | FR-008, FR-011, FR-013, FR-014, FR-016 |
+| US5 Revisiting and changing an answer | FR-002a, FR-003, FR-010, FR-021 |
 
 ### Success criteria → functional requirements
 
@@ -196,6 +233,9 @@ The entire tool advisor experience — questions, decision logic, recommendation
 | SC-006 | DR-001, DR-004, DR-005 |
 | SC-007 | FR-005, FR-005a, FR-005b, FR-005c |
 | SC-008 | FR-013, FR-014 |
+| SC-009 | FR-004a, FR-019 |
+| SC-010 | FR-021 |
+| SC-011 | FR-020 |
 
 ### Edge cases → requirements
 
@@ -207,6 +247,9 @@ The entire tool advisor experience — questions, decision logic, recommendation
 | Framework updated after deployment | FR-016 |
 | Answers only partially match a tool | FR-015 |
 | Malformed or unloadable `rules.json` | FR-014 |
+| Earlier answer changed after a tiebreaker was answered | FR-021 |
+| No tool scores above zero after penalties | FR-015, FR-019 |
+| Two tools share a fit percentage | FR-005b, FR-019 |
 
 ## Assumptions
 
