@@ -32,7 +32,13 @@ export function WizardContainer({ rules }: WizardContainerProps) {
   const wizard = useWizardState(rules);
 
   if (wizard.recommendation) {
-    return <RecommendationResult recommendation={wizard.recommendation} onRestart={wizard.reset} />;
+    return (
+      <RecommendationResult
+        recommendation={wizard.recommendation}
+        onRestart={wizard.reset}
+        onEditAnswers={wizard.editAnswers}
+      />
+    );
   }
 
   if (!wizard.currentQuestion) {
@@ -53,6 +59,8 @@ export function WizardContainer({ rules }: WizardContainerProps) {
           currentIndex={wizard.currentIndex}
           totalQuestions={wizard.totalQuestions}
           isTiebreaker={wizard.isTiebreaker}
+          steps={wizard.steps}
+          onSelectStep={wizard.goToStep}
         />
         <QuestionCard
           key={wizard.currentQuestion.id}

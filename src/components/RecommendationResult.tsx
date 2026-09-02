@@ -7,6 +7,7 @@ import { GlossaryText } from './GlossaryText';
 type RecommendationResultProps = {
   recommendation: Recommendation;
   onRestart: () => void;
+  onEditAnswers?: () => void;
 };
 
 const useStyles = makeStyles({
@@ -37,6 +38,9 @@ const useStyles = makeStyles({
   },
   actions: {
     marginTop: tokens.spacingVerticalL,
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: tokens.spacingHorizontalS,
   },
   learnMore: {
     marginTop: tokens.spacingVerticalL,
@@ -55,7 +59,11 @@ const useStyles = makeStyles({
   },
 });
 
-export function RecommendationResult({ recommendation, onRestart }: RecommendationResultProps) {
+export function RecommendationResult({
+  recommendation,
+  onRestart,
+  onEditAnswers,
+}: RecommendationResultProps) {
   const styles = useStyles();
 
   return (
@@ -87,6 +95,16 @@ export function RecommendationResult({ recommendation, onRestart }: Recommendati
         </div>
 
         <div className={styles.actions}>
+          {onEditAnswers ? (
+            <Button
+              className={styles.button}
+              appearance="secondary"
+              type="button"
+              onClick={onEditAnswers}
+            >
+              Change an answer
+            </Button>
+          ) : null}
           <Button
             className={styles.button}
             appearance="primary"

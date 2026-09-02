@@ -108,4 +108,88 @@ describe('useWizardState', () => {
     expect(result.current.selectedValue).toBeUndefined();
     expect(result.current.isTiebreaker).toBe(false);
   });
+
+  it('exposes a step per core question, reachable only up to the furthest visited', () => {
+    const { result } = renderHook(() => useWizardState(rules));
+
+    expect(result.current.steps).toHaveLength(coreQuestions.length);
+    expect(result.current.steps[0].reachable).toBe(true);
+    expect(result.current.steps[1].reachable).toBe(false);
+
+    walk(result, UI_APP_PATH.slice(0, 2));
+
+    expect(result.current.steps[1].reachable).toBe(true);
+    expect(result.current.steps[0].answered).toBe(true);
+  });
+
+  it('jumps back to an earlier step without losing answers (FR-021)', () => {
+    const { result } = renderHook(() => useWizardState(rules));
+
+    walk(result, UI_APP_PATH.slice(0, 3));
+    act(() => result.current.goToStep(0));
+
+    expect(result.current.currentIndex).toBe(0);
+    expect(result.current.selectedValue).toBe(optionAt(0, UI_APP_PATH[0]));
+
+    act(() => result.current.goToStep(2));
+    expect(result.current.selectedValue).toBe(optionAt(2, UI_APP_PATH[2]));
+  });
+
+  it('refuses to jump forward past the furthest answered step', () => {
+    const { result } = renderHook(() => useWizardState(rules));
+
+    act(() => result.current.goToStep(4));
+
+    expect(result.current.currentIndex).toBe(0);
+  });
+
+  it('returns to the questions from the results view with answers intact (FR-021)', () => {
+    const { result } = renderHook(() => useWizardState(rules));
+
+    walk(result, UI_APP_PATH);
+    expect(result.current.recommendation).toBeTruthy();
+
+    act(() => result.current.editAnswers());
+
+    expect(result.current.recommendation).toBeNull();
+    expect(result.current.currentIndex).toBe(0);
+    expect(result.current.selectedValue).toBe(optionAt(0, UI_APP_PATH[0]));
+  });
+
+  it('recalculates the recommendation after an earlier answer changes (FR-021)', () => {
+    const { result } = renderHook(() => useWizardState(rules));
+
+    walk(result, UI_APP_PATH);
+    expect(result.current.recommendation?.primaryTool.name).toBe('Power Apps');
+
+    act(() => result.current.editAnswers());
+    act(() => result.current.selectAnswer(optionAt(0, 1)));
+
+    expect(result.current.recommendation).toBeNull();
+
+    for (let i = 0; i < coreQuestions.length; i += 1) {
+      act(() => result.current.goNext());
+    }
+
+    expect(result.current.recommendation?.primaryTool.name).toBe('Power Automate');
+  });
+
+  it('discards a tiebreaker answer when a core answer changes (FR-021)', () => {
+    const { result } = renderHook(() => useWizardState(rules));
+
+    walk(result, TIE_PATH);
+    expect(result.current.isTiebreaker).toBe(true);
+
+    const tiebreakerOption = result.current.currentQuestion!.options![0].id;
+    act(() => result.current.selectAnswer(tiebreakerOption));
+    act(() => result.current.goNext());
+    expect(result.current.recommendation).toBeTruthy();
+
+    act(() => result.current.editAnswers());
+    act(() => result.current.selectAnswer(optionAt(0, 0)));
+
+    expect(result.current.isTiebreaker).toBe(false);
+    expect(result.current.recommendation).toBeNull();
+    expect(result.current.steps).toHaveLength(coreQuestions.length);
+  });
 });

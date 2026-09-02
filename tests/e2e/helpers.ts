@@ -15,8 +15,8 @@ export async function walkPath(page: Page, path: number[]) {
   }
 }
 
-/** Tabs forward until a radio has focus, so glossary triggers in the question text don't break the walk. */
-export async function tabToFirstRadio(page: Page, maxPresses = 8) {
+/** Tabs forward until a radio has focus, so glossary triggers and step buttons don't break the walk. */
+export async function tabToFirstRadio(page: Page, maxPresses = 30) {
   await page.locator('body').press('Tab');
 
   for (let i = 0; i < maxPresses; i += 1) {

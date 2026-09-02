@@ -1,9 +1,12 @@
-import { ProgressBar, makeStyles, tokens } from '@fluentui/react-components';
+import { Button, ProgressBar, makeStyles, mergeClasses, tokens } from '@fluentui/react-components';
+import type { WizardStep } from '../hooks/useWizardState';
 
 type ProgressIndicatorProps = {
   currentIndex: number;
   totalQuestions: number;
   isTiebreaker?: boolean;
+  steps?: WizardStep[];
+  onSelectStep?: (index: number) => void;
 };
 
 const useStyles = makeStyles({
@@ -19,12 +22,29 @@ const useStyles = makeStyles({
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
   },
+  steps: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: tokens.spacingHorizontalXS,
+    marginTop: tokens.spacingVerticalS,
+    padding: 0,
+    listStyleType: 'none',
+  },
+  step: {
+    minWidth: '44px',
+    minHeight: '44px',
+  },
+  current: {
+    fontWeight: tokens.fontWeightBold,
+  },
 });
 
 export function ProgressIndicator({
   currentIndex,
   totalQuestions,
   isTiebreaker = false,
+  steps,
+  onSelectStep,
 }: ProgressIndicatorProps) {
   const styles = useStyles();
   const currentPosition = currentIndex + 1;
@@ -49,6 +69,36 @@ export function ProgressIndicator({
         value={currentPosition}
         max={totalQuestions}
       />
+
+      {steps && onSelectStep ? (
+        <nav aria-label="Wizard steps">
+          <ol className={styles.steps}>
+            {steps.map((step) => {
+              const isCurrent = step.index === currentIndex;
+              const stepLabel = step.isTiebreaker
+                ? `Tiebreaker question: ${step.label}`
+                : `Question ${step.index + 1}: ${step.label}`;
+
+              return (
+                <li key={step.id}>
+                  <Button
+                    className={mergeClasses(styles.step, isCurrent && styles.current)}
+                    appearance={isCurrent ? 'primary' : step.answered ? 'outline' : 'subtle'}
+                    shape="circular"
+                    type="button"
+                    aria-current={isCurrent ? 'step' : undefined}
+                    aria-label={`${stepLabel}${step.answered ? ' (answered)' : ''}`}
+                    disabled={!step.reachable || step.isTiebreaker}
+                    onClick={() => onSelectStep(step.index)}
+                  >
+                    {step.index + 1}
+                  </Button>
+                </li>
+              );
+            })}
+          </ol>
+        </nav>
+      ) : null}
     </div>
   );
 }

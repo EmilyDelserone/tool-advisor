@@ -32,6 +32,11 @@ The wizard is a **stepper**: exactly one question on screen at a time.
 - **Back / Next controls** at the foot of the card, Back on the left as a `secondary` button, Next on
   the right as the `primary` button. Next is disabled until an option is selected; Back is disabled on
   the first question. On the final question Next reads **See recommendation**.
+- **Clickable steps.** Below the progress bar, a `nav` landmark lists one numbered `Button` per core
+  question. The current step carries `aria-current="step"`; answered steps use the `outline`
+  appearance; steps beyond the furthest question reached are disabled. Selecting a step jumps
+  straight to it with answers intact. The tiebreaker is never directly selectable — it exists only
+  while a tie stands.
 - **Options are radios.** Use `RadioGroup` with one `Radio` per option so keyboard and screen reader
   behaviour is Fluent's, not ours. The question text is the group's `Field` label.
 - The step card is a Fluent `Card` centred in a column no wider than ~720px.
@@ -44,7 +49,8 @@ Two elements, in this order, and no more:
    only `h1` on the page, an eyebrow label ("Recommended tool"), a fit percentage bar, the
    plain-language justification, a **Learn more** link to the tool's official documentation, and the
    **Start over** button. It must be unmistakably the primary element: brand-tinted surface,
-   larger type, and clear separation from what follows.
+   larger type, and clear separation from what follows. A secondary **Change an answer** action
+   returns to the questions with every answer preserved.
 2. **Comparison table.** A Fluent `Table` beneath the winner card with exactly three columns —
    *Tool*, *Use case*, *Why not this one?* — one row per runner-up, ordered by descending score. The
    Tool cell carries the tool name, its fit percentage bar, and its documentation link. Cells stay

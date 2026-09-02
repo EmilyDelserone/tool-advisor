@@ -111,4 +111,69 @@ describe('Wizard question flow (US1)', () => {
     expect(screen.getByText(`Question 1 of ${CORE_QUESTION_COUNT}`)).toBeTruthy();
     expect((screen.getAllByRole('radio')[0] as HTMLInputElement).checked).toBe(false);
   });
+
+  it('jumps to an earlier question from the step list (FR-021)', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await answerByIndex(user, 0);
+    await answerByIndex(user, 1);
+
+    expect(screen.getByText(`Question 3 of ${CORE_QUESTION_COUNT}`)).toBeTruthy();
+
+    await user.click(screen.getByRole('button', { name: /^Question 1:/ }));
+
+    expect(screen.getByText(`Question 1 of ${CORE_QUESTION_COUNT}`)).toBeTruthy();
+    expect((screen.getAllByRole('radio')[0] as HTMLInputElement).checked).toBe(true);
+  });
+
+  it('disables steps the user has not reached yet', () => {
+    render(<App />);
+
+    expect(
+      (screen.getByRole('button', { name: /^Question 2:/ }) as HTMLButtonElement).disabled
+    ).toBe(true);
+  });
+
+  it('recalculates the recommendation when an earlier answer changes (FR-021)', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await walkPath(user, UI_APP_PATH);
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Power Apps');
+
+    await user.click(screen.getByRole('button', { name: /change an answer/i }));
+    await user.click(screen.getAllByRole('radio')[1]); // needs a UI? -> No
+
+    for (let i = 0; i < CORE_QUESTION_COUNT; i += 1) {
+      await user.click(screen.getByRole('button', { name: /next|see recommendation/i }));
+    }
+
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Power Automate');
+  });
+
+  it('keeps the fit score in step with the edited answers (FR-019, FR-021)', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await walkPath(user, UI_APP_PATH);
+    const before = screen
+      .getByRole('progressbar', { name: 'Fit score for Power Apps' })
+      .getAttribute('aria-valuenow');
+
+    await user.click(screen.getByRole('button', { name: /change an answer/i }));
+    await user.click(screen.getAllByRole('radio')[1]);
+
+    for (let i = 0; i < CORE_QUESTION_COUNT; i += 1) {
+      await user.click(screen.getByRole('button', { name: /next|see recommendation/i }));
+    }
+
+    const after = screen
+      .getByRole('progressbar', { name: 'Fit score for Power Automate' })
+      .getAttribute('aria-valuenow');
+
+    expect(before).toBe('100');
+    expect(after).toBe('100');
+    expect(screen.queryByRole('progressbar', { name: 'Fit score for Power Apps' })).toBeTruthy();
+  });
 });
