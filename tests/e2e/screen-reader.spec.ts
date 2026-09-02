@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { UI_APP_PATH, walkPath } from './helpers';
+import { UI_APP_PATH, answerByIndex, walkPath } from './helpers';
 
 const INTERACTIVE_ROLES = ['button', 'link', 'radio', 'radiogroup', 'checkbox', 'textbox'];
 
@@ -86,5 +86,85 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
 
     await expect(page.getByRole('main')).toHaveCount(1);
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+  });
+
+  test('announces progress changes through a live region', async ({ page }) => {
+    await page.goto('/');
+
+    const live = page.locator('[aria-live="polite"]');
+    await expect(live).toContainText('Question 1 of');
+
+    await answerByIndex(page, UI_APP_PATH[0]);
+
+    await expect(live).toContainText('Question 2 of');
+  });
+
+  test('announces the selected state of a radio option', async ({ page }) => {
+    await page.goto('/');
+
+    const first = page.getByRole('radio').first();
+    await expect(first).not.toBeChecked();
+
+    await first.check();
+
+    await expect(first).toBeChecked();
+    expect(await ariaTree(page)).toMatch(/radio "Yes" \[checked\]/);
+  });
+
+  test('announces the step list as navigation with the current step marked', async ({ page }) => {
+    await page.goto('/');
+
+    const nav = page.getByRole('navigation', { name: 'Wizard steps' });
+    await expect(nav).toBeVisible();
+
+    const tree = await nav.ariaSnapshot();
+    expect(tree).toMatch(/button "Question 1:.*"/);
+    await expect(page.getByRole('button', { name: /^Question 1:/ })).toHaveAttribute(
+      'aria-current',
+      'step'
+    );
+  });
+
+  test('announces glossary definitions when opened, without trapping focus', async ({ page }) => {
+    await page.goto('/');
+
+    const trigger = page.getByRole('button', { name: /mean\?$/ }).first();
+    await trigger.focus();
+    await page.keyboard.press('Enter');
+
+    const tree = await ariaTree(page);
+    expect(tree).toContain('Example:');
+
+    await page.keyboard.press('Escape');
+    await expect(trigger).toBeFocused();
+  });
+
+  test('announces the runner-up disclosure state and its revealed content', async ({ page }) => {
+    await page.goto('/');
+    await walkPath(page, UI_APP_PATH);
+
+    const toggle = page.getByRole('button', { name: /^Show what lowered / }).first();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+    const controls = await toggle.getAttribute('aria-controls');
+    expect(controls).toBeTruthy();
+
+    await toggle.click();
+
+    await expect(page.getByRole('button', { name: /^Hide what lowered / }).first()).toHaveAttribute(
+      'aria-expanded',
+      'true'
+    );
+    await expect(page.locator(`#${controls}`)).toBeVisible();
+  });
+
+  test('keeps decorative tool icons out of the accessibility tree', async ({ page }) => {
+    await page.goto('/');
+    await walkPath(page, UI_APP_PATH);
+
+    const tree = await ariaTree(page);
+
+    expect(tree).not.toMatch(/- img/);
+    expect(tree).toContain('heading "Power Apps"');
   });
 });
