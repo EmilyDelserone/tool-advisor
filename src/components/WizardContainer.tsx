@@ -35,6 +35,11 @@ export function WizardContainer({ rules }: WizardContainerProps) {
   const [hasStarted, setHasStarted] = useState(false);
   const wizard = useWizardState(rules);
 
+  const restart = () => {
+    wizard.reset();
+    setHasStarted(false);
+  };
+
   if (!hasStarted) {
     return <IntroScreen onGetStarted={() => setHasStarted(true)} />;
   }
@@ -44,7 +49,7 @@ export function WizardContainer({ rules }: WizardContainerProps) {
       <AnalyzingResultGate key={wizard.recommendation.generatedAt}>
         <RecommendationResult
           recommendation={wizard.recommendation}
-          onRestart={wizard.reset}
+          onRestart={restart}
           onEditAnswers={wizard.editAnswers}
         />
       </AnalyzingResultGate>

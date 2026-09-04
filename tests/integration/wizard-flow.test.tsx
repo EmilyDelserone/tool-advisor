@@ -122,14 +122,20 @@ describe('Wizard question flow (US1)', () => {
     expect(await screen.findAllByRole('heading', { level: 1 })).toHaveLength(1);
   });
 
-  it('restarts the wizard back to question 1 (FR-010)', async () => {
+  it('restarts the wizard at the intro screen with a clean state (FR-010)', async () => {
     const user = userEvent.setup();
     render(<App />);
     await startWizard(user);
 
     await walkPath(user, UI_APP_PATH);
-  await screen.findByText('Recommended tool');
+    await screen.findByText(/Recommended (tool|combination)/);
     await user.click(screen.getByRole('button', { name: /start over/i }));
+
+    expect(screen.getByRole('heading', { name: /find the right microsoft tool/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /get started/i })).toBeTruthy();
+    expect(screen.queryByText(`Question 1 of ${CORE_QUESTION_COUNT}`)).toBeNull();
+
+    await startWizard(user);
 
     expect(screen.getByText(`Question 1 of ${CORE_QUESTION_COUNT}`)).toBeTruthy();
     expect((screen.getAllByRole('radio')[0] as HTMLInputElement).checked).toBe(false);
