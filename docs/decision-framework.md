@@ -4,4 +4,17 @@ Power Apps	Needs a user-facing interface for structured data entry/interaction. 
 Copilot Studio	The interaction genuinely needs natural language — FAQ/employee self-service, guided troubleshooting, summarizing or retrieving info from a knowledge base. Can call Power Automate flows/actions to take real steps. Data sources are Dataverse/SharePoint/Graph/etc. with governance in place.	The interaction doesn't need natural language — a form or a few buttons is faster and more reliable (→ Power Apps/Power Automate). High-stakes actions where a deterministic, auditable flow is safer than a generative agent making the call. Compliance concerns about exposing sensitive content to a generative model without proper DLP for Copilot Studio configured.
 Azure Logic Apps	Enterprise integration, including on-prem/legacy systems or B2B/EDI scenarios. Needs more robust monitoring, retries, and throughput than Power Automate provides. Owned by IT/pro developers, often part of a broader Azure Integration Services strategy (API Management, Service Bus, etc.). Needs Azure-native governance (VNET, managed identities, IaC-driven deployment).	A simple internal process a citizen developer could own (→ Power Automate is cheaper and faster to stand up). No appetite for pro-dev/IT ownership — introduces governance overhead disproportionate to the ask. Team lacks Azure DevOps/IaC discipline to actually maintain it well.
 Azure Functions	Needs custom code or complex logic/algorithms low-code connectors can't express. High-performance, event-driven compute — large file processing, custom APIs, complex data transformations. Pro-developer owned with real testing/CI-CD/version control. Often the "custom code" piece called from a Logic App or Flow, not a standalone solution.	Business/citizen-developer maintained solution — pro-code overhead isn't justified when a connector-based approach would work. Simple sequential process without heavy custom logic (over-engineered relative to Power Automate/Logic Apps). No pro-dev resourcing to maintain custom code long-term — creates a maintenance liability outside the citizen-developer support model.
+
+## Combo Patterns
+
+Some business needs are best served by two tools working together. When all signals in a pattern are present, recommend both tools and explain each role:
+
+- **Needs a UI and custom code or complex logic:** Power Apps handles the interface; Azure Functions handles the piece connectors cannot express.
+- **Needs a UI and backend automation across systems:** Power Apps handles the interface; Power Automate handles backend actions across systems.
+- **Needs conversation and real actions, not just answers:** Copilot Studio handles the conversation; Power Automate executes the actual business process.
+- **Needs enterprise integration and custom compute:** Azure Logic Apps orchestrates the integration; Azure Functions handles logic Logic Apps' connectors cannot.
+- **Needs employee self-service and occasional escalation to a structured process:** Copilot Studio handles routine questions; Power Apps provides the form or app for edge cases.
+
+Combo patterns take precedence over a single-tool recommendation when their required signals are all activated. Otherwise, use the single-tool scoring rules above unchanged.
+
 •	

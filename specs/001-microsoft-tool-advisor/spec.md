@@ -22,7 +22,26 @@
 - Q: What should the expandable runner-up row reveal, and where does that content come from? → A: The specific framework red flags that reduced that tool's fit score, with their point cost, taken from the engine's score data rather than recomputed in the UI
 - Q: When a user edits an earlier answer, which later answers should be discarded? → A: Only answers that depend on superseded scoring. The core questions are independent of one another so their answers are preserved; the tiebreaker answer is discarded because the tie that prompted it may no longer exist
 
+### Session 2026-09-04
+
+- Q: How should the advisor handle needs that span two Microsoft tools? → A: Use framework-defined combo patterns. When all required signals for a pattern are active, return the two specified tools with a short explanation of each tool's role; otherwise preserve the existing single-tool recommendation.
+- Q: What should users see before the first wizard question? → A: A Fluent UI introduction screen with the advisor headline, a short explanation of the guided questions and recommendation reasoning, and a "Get Started" action that begins question 1.
+
 ## User Scenarios & Testing *(mandatory)*
+
+### User Story 0 - Introduction Before the Wizard (Priority: P1)
+
+A business stakeholder opens the Tool Advisor and first sees a concise introduction explaining what the advisor does. They select "Get Started" when ready, after which the first guided question appears.
+
+**Why this priority**: The introduction establishes the purpose and expected outcome before asking the user for business information.
+
+**Independent Test**: Can be fully tested by launching the application, verifying that the introduction is visible and no question is shown, activating "Get Started", and verifying that question 1 and its progress indicator appear.
+
+**Acceptance Scenarios**:
+
+1. **Given** the application is opened, **When** the initial screen loads, **Then** it displays a headline about finding the right Microsoft tool, a short explanation of the guided questions and recommendation reasoning, and a "Get Started" button
+2. **Given** the introduction screen is visible, **When** the user activates "Get Started", **Then** the introduction is replaced by question 1 and the wizard progress indicator
+3. **Given** the introduction screen is visible, **When** the user reviews the page, **Then** no wizard question, answer option, or question progress is presented before starting
 
 ### User Story 1 - Discovery Through Guided Questions (Priority: P1)
 
@@ -44,11 +63,11 @@ A business analyst needs to identify which Microsoft tool is best for a specific
 
 ### User Story 2 - Primary Tool Recommendation with Justification (Priority: P1)
 
-After answering all questions, the user receives a clear, primary tool recommendation with a plain-language explanation of why that tool is the best fit. The reasoning directly connects to the signals and red flags from the decision framework, not just a generic description.
+After answering all questions, the user receives either a clear, primary tool recommendation or a paired recommendation when the need spans two tools. The reasoning directly connects to the signals and red flags from the decision framework, not just a generic description.
 
 **Why this priority**: The recommendation and its reasoning are the core deliverable. Without clear justification grounded in the framework, users won't trust the recommendation.
 
-**Independent Test**: Can be fully tested by completing the wizard with different answer sets and verifying that (1) a single primary recommendation is shown, (2) the justification references specific signals/red flags from docs/decision-framework.md, and (3) the reasoning is readable and actionable.
+**Independent Test**: Can be fully tested by completing the wizard with single-tool and combo answer sets and verifying that the appropriate result is shown, the justification references specific signals/red flags from docs/decision-framework.md, and the reasoning is readable and actionable.
 
 **Acceptance Scenarios**:
 
@@ -57,6 +76,7 @@ After answering all questions, the user receives a clear, primary tool recommend
 3. **Given** the user sees a recommendation, **When** they review the explanation, **Then** it uses business-friendly language, not technical jargon
 4. **Given** the results are displayed, **When** the user reviews the primary tool section, **Then** it is visually distinct (color, size, emphasis) from secondary information
 5. **Given** the results are displayed, **When** the user looks at the recommended tool, **Then** a 0-100% fit score is shown as a labelled percentage bar alongside it
+6. **Given** all required signals for a framework combo pattern are active, **When** results load, **Then** the paired recommendation names both tools in the pattern and explains each tool's role
 
 ---
 
@@ -123,6 +143,8 @@ Part-way through the wizard, or after seeing the recommendation, the user realis
 - What if a user changes an earlier answer after a tiebreaker has already been answered? (The tiebreaker answer is discarded because the tie that prompted it may no longer exist; independent core answers are preserved and the wizard re-evaluates)
 - What if no tool scores above zero after red flag penalties? (Every fit percentage is 0% and the justification carries the partial-match caveat; a recommendation is still produced)
 - What if two tools tie and therefore share a fit percentage? (Identical percentages are shown; the tiebreaker question, not the percentage, resolves which tool wins)
+- What if a combo pattern and single-tool scoring both apply? (The framework combo pattern takes precedence for the displayed recommendation; regular scores remain available for supporting comparison data)
+- What if no combo pattern's required signals are all active? (Return the existing single-tool recommendation unchanged)
 
 ## Requirements *(mandatory)*
 
@@ -144,11 +166,14 @@ Part-way through the wizard, or after seeing the recommendation, the user realis
 - **FR-013**: System MUST load decision framework data from `src/data/rules.json` at application startup; this file is the runtime source of truth for tool definitions, signals, red flags, and scoring weights
 - **FR-001a**: Questions MUST be presented in ascending `position` order. Core questions occupy positions 1-7; tiebreaker questions occupy positions 8+ and are excluded from the core sequence
 - **FR-001b**: Every question MUST be one of two formats: yes/no (implicit `yes` / `no` options) or multiple-choice single-select (explicit `options[]`). Multi-select and free-text answers are out of scope
+- **FR-001c**: The system MUST display an introduction screen before question 1 with a headline, a short explanation of the guided questions and recommendation reasoning, and a "Get Started" button. The question view MUST remain hidden until the button is activated
 - **FR-002a**: Answers MUST be held in React component state (browser memory) for the duration of the session. The system MUST NOT write to `localStorage`, `sessionStorage`, cookies, or IndexedDB. A page reload therefore restarts the wizard at question 1
 - **FR-004a**: The score for each tool MUST be `netScore = Σ weight(matched signals) − Σ weight(matched red flags)`, where a signal or red flag matches only if the user's answers activated it **and** the tool appears in its `applicableTools` list. Duplicate activations of the same signal or red flag count once. Scores may be negative
 - **FR-005b**: A tie MUST be declared when two or more tools share the highest `netScore`. The system MUST then select the first entry in `tiebreakers[]` whose `appliesWhen` list contains every tied tool id and whose question has not yet been answered, and present that question
 - **FR-005c**: If tools remain tied after the tiebreaker (or no applicable tiebreaker exists), the system MUST resolve deterministically: highest `signalScore` first, then the order tools appear in `rules.json`. The same answers MUST always produce the same recommendation
 - **FR-006a**: The justification MUST cite up to 2 matched signals and up to 1 matched red flag, rendered as 1-3 sentences of no more than 60 words
+- **FR-006b**: The engine MUST evaluate framework-defined combo patterns after aggregating activated signals. When every `requiredSignalIds` entry for a pattern is active, the recommendation MUST contain the pattern's two tools in order and their role explanations; combo matching MUST take precedence over the single-tool display recommendation
+- **FR-006c**: When a combo recommendation is returned, the results view MUST clearly display both tool names as a pair (for example, "Power Apps + Azure Functions"), show a short role explanation for each, and provide official documentation links for both tools. When no combo pattern matches, the existing single-tool result MUST be displayed unchanged
 - **FR-007a**: The comparison table MUST have exactly three columns — Tool, Use case, Why not this one? — with rows ordered by descending `netScore`
 - **FR-007b**: Each "Why not this one?" cell MUST cite up to 2 signals the primary tool matched but the runner-up did not, plus up to 2 red flags the runner-up matched. When neither exists, it MUST state the score difference instead
 - **FR-014**: If `rules.json` fails schema validation at startup, the system MUST display "Unable to load framework data, please refresh" instead of the wizard. Any other runtime error MUST be caught by an error boundary that offers a "Try again" action. No error path may transmit data off the device
@@ -173,6 +198,8 @@ Part-way through the wizard, or after seeing the recommendation, the user realis
 - **DR-009**: Technical terms in question and recommendation copy MUST offer an on-demand plain-English definition with one concrete example. The affordance MUST open on mouse hover, on touch tap, and from the keyboard, and MUST NOT change the user's answer when activated
 - **DR-010**: Each tool MUST be accompanied by a distinct icon wherever it is named as a recommendation or runner-up, and in question copy that names a tool. Icons MUST be decorative (`aria-hidden`) with the tool name always present as text. Icons MUST come from an MIT-licensed set — the official Microsoft Power Platform and Azure icon sets are licensed only for "architectural diagrams, training materials, or documentation" and MUST NOT be embedded in this product UI without explicit permission from Microsoft
 - **DR-011**: Fit score bars MUST fill from zero to their value over approximately 500ms when the results appear, staggered so the winner and each runner-up do not animate in unison. The announced value MUST remain the final score throughout, and the animation MUST be disabled under `prefers-reduced-motion: reduce`
+- **DR-012**: The introduction screen MUST use the existing Fluent UI provider and token-based styling, present one accessible `h1`, and provide a primary "Get Started" control with a minimum 44px touch target
+- **DR-013**: A combo result MUST use a distinct paired-recommendation presentation rather than treating one tool as the sole winner. It MUST label the result as a combination, show both tool icons beside visible names, and associate each role explanation with its tool
 
 ### Non-Functional Requirements
 
@@ -188,12 +215,14 @@ Part-way through the wizard, or after seeing the recommendation, the user realis
 - **Signal**: A best-fit indicator from the decision framework that supports a tool recommendation (has a weight in `rules.json`)
 - **RedFlag**: A warning indicator from the decision framework that argues against a tool recommendation (has a weight in `rules.json`)
 - **Recommendation**: The selected tool along with its justification reasoning, fit score, and supporting signals
+- **ComboPattern**: A framework-defined set of required signal IDs, exactly two tool IDs, and aligned role explanations for a multi-tool recommendation
+- **ComboTool**: One tool in a combo recommendation paired with the role it fulfils
 - **RunnerUpTool**: An alternative tool shown in the comparison table with key differentiators, its own fit score, and the red flag breakdown behind that score
 - **ToolScore**: The per-tool scoring result — signal score, red flag penalty, net score, and the 0-100 fit score derived from them
 - **ScoreContribution**: A single framework signal or red flag with the weight it added to or removed from a tool's score, used to explain a runner-up's percentage
 - **WizardStep**: A question's position in the progress indicator, whether it has been answered, and whether it can be jumped to
 - **TiebreakerQuestion**: A question asked when the top-scoring tool is tied with another tool, to provide clear differentiation
-- **RulesFile**: `src/data/rules.json` containing tool definitions, signals, red flags, weights, and tiebreaker logic
+- **RulesFile**: `src/data/rules.json` containing tool definitions, signals, red flags, weights, tiebreaker logic, and optional combo patterns
 
 ## Success Criteria *(mandatory)*
 
@@ -210,6 +239,8 @@ Part-way through the wizard, or after seeing the recommendation, the user realis
 - **SC-009**: Fit percentages never contradict the ranking — in every answer combination, no runner-up displays a percentage above the recommended tool's. Verified by an automated test asserting percentage order matches net score order
 - **SC-010**: A user can correct a single earlier answer and reach an updated recommendation without re-answering the questions they did not change. Verified by an automated test that edits one answer and asserts the remaining answers are retained and the recommendation is recomputed
 - **SC-011**: Every runner-up percentage can be explained on demand — expanding a runner-up lists the framework red flags behind its score, and their weights sum to that tool's total penalty. Verified by an automated test comparing the rendered breakdown against the engine's score data
+- **SC-012**: A first-time user can identify the advisor's purpose before answering questions and reach question 1 with one activation of "Get Started"
+- **SC-013**: For every combo pattern in `rules.json`, an answer set activating all required signals produces the configured two-tool recommendation and both role explanations; answer sets activating no combo pattern preserve the single-tool recommendation
 
 ## Traceability
 
@@ -217,8 +248,9 @@ Part-way through the wizard, or after seeing the recommendation, the user realis
 
 | User story | Functional requirements |
 |------------|-------------------------|
+| US0 Introduction before the wizard | FR-001c, DR-001, DR-012 |
 | US1 Discovery through guided questions | FR-001, FR-001a, FR-001b, FR-002, FR-002a, FR-003, FR-010 |
-| US2 Primary recommendation with justification | FR-004, FR-004a, FR-005, FR-005a, FR-005b, FR-005c, FR-006, FR-006a, FR-009, FR-015, FR-019 |
+| US2 Primary recommendation with justification | FR-004, FR-004a, FR-005, FR-005a, FR-005b, FR-005c, FR-006, FR-006a, FR-006b, FR-006c, FR-009, FR-015, FR-019 |
 | US3 Comparison table with runner-ups | FR-007, FR-007a, FR-007b, FR-012, FR-017, FR-018, FR-019, FR-020 |
 | US4 Client-side completeness | FR-008, FR-011, FR-013, FR-014, FR-016 |
 | US5 Revisiting and changing an answer | FR-002a, FR-003, FR-010, FR-021 |
@@ -238,6 +270,8 @@ Part-way through the wizard, or after seeing the recommendation, the user realis
 | SC-009 | FR-004a, FR-019 |
 | SC-010 | FR-021 |
 | SC-011 | FR-020 |
+| SC-012 | FR-001c, DR-012 |
+| SC-013 | FR-006b, FR-006c |
 
 ### Edge cases → requirements
 
@@ -252,6 +286,7 @@ Part-way through the wizard, or after seeing the recommendation, the user realis
 | Earlier answer changed after a tiebreaker was answered | FR-021 |
 | No tool scores above zero after penalties | FR-015, FR-019 |
 | Two tools share a fit percentage | FR-005b, FR-019 |
+| Combo signals are active | FR-006b, FR-006c |
 
 ## Assumptions
 
@@ -260,9 +295,9 @@ Part-way through the wizard, or after seeing the recommendation, the user realis
 - Recommendation algorithm uses weighted scoring based on framework signals; each signal has a defined weight, and tools are ranked deterministically
 - If two or more tools tie after scoring, a tiebreaker question is asked to differentiate (the question and differentiation criteria are design outputs)
 - Decision framework data is maintained in a separate `src/data/rules.json` file (or similar) that is manually curated/updated based on `docs/decision-framework.md`; the `rules.json` file is the runtime source of truth for tool definitions, signals, and red flags
-- The `rules.json` file structure includes: tool definitions (name, description, primary use case), best-fit signals (list with weights), red flags (list with weights), and tiebreaker question(s) if needed
+- The `rules.json` file structure includes: tool definitions (name, description, primary use case), best-fit signals (list with weights), red flags (list with weights), tiebreaker question(s) if needed, and combo patterns with required signals, two tool IDs, and role explanations
 - The application loads and parses `rules.json` at startup (client-side); framework updates require manual updates to `rules.json` and redeployment (no dynamic loading from markdown)
-- Browser local storage or session storage may be used for temporary state during the wizard, but no data persists after the browser session ends
+- Wizard state is held only in React/browser memory; localStorage, sessionStorage, cookies, IndexedDB, and server persistence are out of scope
 - Mobile and desktop UIs may differ in layout (e.g., question width, button placement) but must deliver identical functional and decision logic
 - Users have basic familiarity with Microsoft cloud tools (Power Platform, Azure) or are willing to learn; the tool does not teach tool details, only helps match business needs to tools
 - The five tools covered (Power Automate, Power Apps, Copilot Studio, Azure Logic Apps, Azure Functions) represent the complete set for this recommendation scope; other Microsoft services are out of scope

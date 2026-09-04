@@ -27,6 +27,34 @@ const uiAnswers: Answer[] = [
 
 describe('Recommendation result (US2, US3)', () => {
   const recommendation = findPrimaryRecommendation(uiAnswers, rules);
+  const comboRecommendation = findPrimaryRecommendation(
+    [
+      {
+        questionId: 'combo-test',
+        value: 'yes',
+        timestamp: 0,
+        activatedSignalIds: ['ui-required', 'custom-code-logic'],
+        activatedRedFlagIds: [],
+      },
+    ],
+    rules
+  );
+
+  it('shows both tools and their roles for a paired recommendation', () => {
+    render(<RecommendationResult recommendation={comboRecommendation} onRestart={() => {}} />);
+
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
+      'Power Apps + Azure Functions'
+    );
+    expect(screen.getByText('Handles the user interface.')).toBeTruthy();
+    expect(screen.getByText('Handles custom logic connectors cannot express.')).toBeTruthy();
+    expect(
+      screen.getByRole('link', { name: /Power Apps documentation/i })
+    ).toBeTruthy();
+    expect(
+      screen.getByRole('link', { name: /Azure Functions documentation/i })
+    ).toBeTruthy();
+  });
 
   it('shows exactly one primary tool with a framework-grounded justification (US2/AC1, AC2)', () => {
     render(<RecommendationResult recommendation={recommendation} onRestart={() => {}} />);

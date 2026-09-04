@@ -26,9 +26,22 @@ const walkPath = async (user: User, path: number[]) => {
   }
 };
 
+const startWizard = async (user: User) => {
+  await user.click(screen.getByRole('button', { name: /get started/i }));
+};
+
 describe('Wizard question flow (US1)', () => {
-  it('shows the first question with an accessible progress indicator', () => {
+  it('shows the intro screen before the first question', () => {
     render(<App />);
+
+    expect(screen.getByRole('heading', { name: /find the right microsoft tool/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /get started/i })).toBeTruthy();
+  });
+
+  it('shows the first question with an accessible progress indicator', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await startWizard(user);
 
     expect(screen.getByText(`Question 1 of ${CORE_QUESTION_COUNT}`)).toBeTruthy();
     expect(screen.getByText('0% complete')).toBeTruthy();
@@ -41,6 +54,7 @@ describe('Wizard question flow (US1)', () => {
   it('blocks Next until an option is selected', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     expect((screen.getByRole('button', { name: /next/i }) as HTMLButtonElement).disabled).toBe(true);
 
@@ -54,6 +68,7 @@ describe('Wizard question flow (US1)', () => {
   it('advances to the next question and updates progress (US1/AC1, AC3)', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     expect(screen.getByText(/does your solution need a ui/i)).toBeTruthy();
 
@@ -66,6 +81,7 @@ describe('Wizard question flow (US1)', () => {
   it('goes back and preserves the previous answer', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     await answerByIndex(user, 0);
     await user.click(screen.getByRole('button', { name: /back/i }));
@@ -77,17 +93,19 @@ describe('Wizard question flow (US1)', () => {
   it('submits the last question and shows the recommendation (US1/AC4)', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     await walkPath(user, UI_APP_PATH);
 
     expect(screen.getByText('Analyzing your answers...')).toBeTruthy();
-    expect(await screen.findByText('Recommended tool')).toBeTruthy();
+    expect(await screen.findByText(/Recommended (tool|combination)/)).toBeTruthy();
     expect((await screen.findByRole('heading', { level: 1 })).textContent).toBe('Power Apps');
   });
 
   it('asks the tiebreaker question when tools tie, then resolves to one tool (FR-005a, SC-007)', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     await walkPath(user, TIE_PATH);
 
@@ -100,13 +118,14 @@ describe('Wizard question flow (US1)', () => {
     await user.click(screen.getByRole('button', { name: /see recommendation/i }));
 
     expect(screen.getByText('Analyzing your answers...')).toBeTruthy();
-    expect(await screen.findByText('Recommended tool')).toBeTruthy();
+    expect(await screen.findByText(/Recommended (tool|combination)/)).toBeTruthy();
     expect(await screen.findAllByRole('heading', { level: 1 })).toHaveLength(1);
   });
 
   it('restarts the wizard back to question 1 (FR-010)', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     await walkPath(user, UI_APP_PATH);
   await screen.findByText('Recommended tool');
@@ -119,6 +138,7 @@ describe('Wizard question flow (US1)', () => {
   it('jumps to an earlier question from the step list (FR-021)', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     await answerByIndex(user, 0);
     await answerByIndex(user, 1);
@@ -131,8 +151,10 @@ describe('Wizard question flow (US1)', () => {
     expect((screen.getAllByRole('radio')[0] as HTMLInputElement).checked).toBe(true);
   });
 
-  it('disables steps the user has not reached yet', () => {
+  it('disables steps the user has not reached yet', async () => {
+    const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     expect(
       (screen.getByRole('button', { name: /^Question 2:/ }) as HTMLButtonElement).disabled
@@ -142,6 +164,7 @@ describe('Wizard question flow (US1)', () => {
   it('recalculates the recommendation when an earlier answer changes (FR-021)', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     await walkPath(user, UI_APP_PATH);
   expect((await screen.findByRole('heading', { level: 1 })).textContent).toBe('Power Apps');
@@ -159,6 +182,7 @@ describe('Wizard question flow (US1)', () => {
   it('keeps the fit score in step with the edited answers (FR-019, FR-021)', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     await walkPath(user, UI_APP_PATH);
     const before = (await screen.findByRole('progressbar', { name: 'Fit score for Power Apps' }))

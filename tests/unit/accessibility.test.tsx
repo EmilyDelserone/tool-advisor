@@ -1,10 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import App from '../../src/App';
 import rulesData from '../../src/data/rules.json';
 import { findPrimaryRecommendation } from '../../src/engine/recommendationEngine';
 import { RecommendationResult } from '../../src/components/RecommendationResult';
 import type { Answer, RulesFile } from '../../src/engine/types';
+
+const startWizard = async (user: ReturnType<typeof userEvent.setup>) => {
+  await user.click(screen.getByRole('button', { name: /get started/i }));
+};
 
 const rules = rulesData as RulesFile;
 
@@ -19,8 +24,10 @@ const answers: Answer[] = [
 ];
 
 describe('Accessible markup (DR-001, SC-006)', () => {
-  it('gives every radio option an associated label', () => {
+  it('gives every radio option an associated label', async () => {
+    const user = userEvent.setup();
     const { container } = render(<App />);
+    await startWizard(user);
 
     const radios = Array.from(container.querySelectorAll('input[type="radio"]'));
     expect(radios.length).toBeGreaterThan(0);
@@ -35,8 +42,10 @@ describe('Accessible markup (DR-001, SC-006)', () => {
     });
   });
 
-  it('groups question options in a labelled radiogroup', () => {
+  it('groups question options in a labelled radiogroup', async () => {
+    const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     const group = screen.getByRole('radiogroup');
     expect(group).toBeTruthy();
@@ -46,15 +55,19 @@ describe('Accessible markup (DR-001, SC-006)', () => {
     expect(screen.getAllByRole('radio').length).toBeGreaterThan(1);
   });
 
-  it('renders the wizard inside a main landmark with a single h1', () => {
+  it('renders the wizard inside a main landmark with a single h1', async () => {
+    const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     expect(screen.getByRole('main')).toBeTruthy();
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
   });
 
-  it('gives every button an explicit type and accessible name', () => {
+  it('gives every button an explicit type and accessible name', async () => {
+    const user = userEvent.setup();
     const { container } = render(<App />);
+    await startWizard(user);
 
     Array.from(container.querySelectorAll('button')).forEach((button) => {
       expect(['button', 'submit']).toContain(button.getAttribute('type'));

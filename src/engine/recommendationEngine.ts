@@ -15,6 +15,7 @@ import type {
   ToolScore,
   Recommendation,
   RunnerUpTool,
+  ComboTool,
 } from './types';
 import { scoreTools } from '../utils/scoring';
 import { joinWithAnd, lowerFirst, pluralize } from '../utils/formatting';
@@ -229,6 +230,28 @@ export function generateRunnerUpDifferentiator(
   return parts.join(' ');
 }
 
+export function detectComboTools(
+  activatedSignalIds: string[],
+  rulesFile: RulesFile
+): { patternId: string; tools: ComboTool[] } | undefined {
+  const pattern = (rulesFile.comboPatterns ?? []).find((candidate) =>
+    candidate.requiredSignalIds.every((signalId) => activatedSignalIds.includes(signalId))
+  );
+
+  if (!pattern || pattern.toolIds.length !== 2 || pattern.roles.length !== 2) {
+    return undefined;
+  }
+
+  const tools = pattern.toolIds
+    .map((toolId, index) => {
+      const tool = rulesFile.tools.find((candidate) => candidate.id === toolId);
+      return tool ? { tool, role: pattern.roles[index] } : undefined;
+    })
+    .filter((comboTool): comboTool is ComboTool => Boolean(comboTool));
+
+  return tools.length === 2 ? { patternId: pattern.id, tools } : undefined;
+}
+
 /**
  * Find the primary tool recommendation given user answers
  * Returns recommendation with justification and runner-ups
@@ -250,6 +273,7 @@ export function findPrimaryRecommendation(
   // Remove duplicates
   const uniqueSignalIds = Array.from(new Set(allActivatedSignalIds));
   const uniqueRedFlagIds = Array.from(new Set(allActivatedRedFlagIds));
+  const combo = detectComboTools(uniqueSignalIds, rulesFile);
 
   // Calculate scores for all tools
   const toolScores = calculateToolScores(
@@ -325,6 +349,7 @@ export function findPrimaryRecommendation(
     matchedSignalIds: primaryToolScore.matchedSignalIds,
     matchedRedFlagIds: primaryToolScore.matchedRedFlagIds,
     runnerUps,
+    ...(combo ? { comboTools: combo.tools, comboPatternId: combo.patternId } : {}),
     generatedAt: Date.now(),
     questionsAnswered: answers.length,
   };

@@ -280,6 +280,38 @@ describe('Recommendation Engine - Unit Tests', () => {
       questions: mockQuestions,
       questionMappings: mockQuestionMappings,
       tiebreakers: mockTiebreakers,
+      comboPatterns: [
+        {
+          id: 'ui-custom-code',
+          requiredSignalIds: ['ui-required', 'custom-code-logic'],
+          toolIds: ['power-apps', 'azure-functions'],
+          roles: ['Handles the user interface.', 'Handles custom logic connectors cannot express.'],
+        },
+        {
+          id: 'ui-backend-automation',
+          requiredSignalIds: ['ui-required', 'enterprise-integration'],
+          toolIds: ['power-apps', 'power-automate'],
+          roles: ['Handles the user interface.', 'Handles backend actions across systems.'],
+        },
+        {
+          id: 'conversation-actions',
+          requiredSignalIds: ['conversational-interface', 'internal-business-process'],
+          toolIds: ['copilot-studio', 'power-automate'],
+          roles: ['Handles the conversation.', 'Executes the business process.'],
+        },
+        {
+          id: 'integration-compute',
+          requiredSignalIds: ['enterprise-integration', 'custom-code-logic'],
+          toolIds: ['azure-logic-apps', 'azure-functions'],
+          roles: ['Orchestrates the integration.', 'Handles custom compute.'],
+        },
+        {
+          id: 'self-service-escalation',
+          requiredSignalIds: ['knowledge-base-selfservice', 'internal-business-process'],
+          toolIds: ['copilot-studio', 'power-apps'],
+          roles: ['Handles routine self-service questions.', 'Provides a structured escalation path.'],
+        },
+      ],
       metadata: {
         lastUpdated: '2025-09-01',
         frameworkVersion: '1.0.0',
@@ -611,6 +643,88 @@ describe('Recommendation Engine - Unit Tests', () => {
       expect(recommendation).toHaveProperty('primaryTool');
       expect(recommendation).toHaveProperty('score');
       expect(recommendation).toHaveProperty('justification');
+    });
+  });
+
+  describe('combo recommendations', () => {
+    const answerForSignals = (...signalIds: string[]): Answer[] => [
+      {
+        questionId: 'combo-test',
+        value: 'yes',
+        timestamp: 0,
+        activatedSignalIds: signalIds,
+        activatedRedFlagIds: [],
+      },
+    ];
+
+    it('recommends Power Apps with Azure Functions for UI and custom logic', () => {
+      const recommendation = findPrimaryRecommendation(
+        answerForSignals('ui-required', 'custom-code-logic'),
+        mockRulesFile
+      );
+
+      expect(recommendation.comboTools?.map((tool) => tool.tool.id)).toEqual([
+        'power-apps',
+        'azure-functions',
+      ]);
+    });
+
+    it('recommends Power Apps with Power Automate for UI and backend automation', () => {
+      const recommendation = findPrimaryRecommendation(
+        answerForSignals('ui-required', 'enterprise-integration'),
+        mockRulesFile
+      );
+
+      expect(recommendation.comboTools?.map((tool) => tool.tool.id)).toEqual([
+        'power-apps',
+        'power-automate',
+      ]);
+    });
+
+    it('recommends Copilot Studio with Power Automate for conversation and actions', () => {
+      const recommendation = findPrimaryRecommendation(
+        answerForSignals('conversational-interface', 'internal-business-process'),
+        mockRulesFile
+      );
+
+      expect(recommendation.comboTools?.map((tool) => tool.tool.id)).toEqual([
+        'copilot-studio',
+        'power-automate',
+      ]);
+    });
+
+    it('recommends Logic Apps with Azure Functions for integration and custom compute', () => {
+      const recommendation = findPrimaryRecommendation(
+        answerForSignals('enterprise-integration', 'custom-code-logic'),
+        mockRulesFile
+      );
+
+      expect(recommendation.comboTools?.map((tool) => tool.tool.id)).toEqual([
+        'azure-logic-apps',
+        'azure-functions',
+      ]);
+    });
+
+    it('recommends Copilot Studio with Power Apps for self-service and escalation', () => {
+      const recommendation = findPrimaryRecommendation(
+        answerForSignals('knowledge-base-selfservice', 'internal-business-process'),
+        mockRulesFile
+      );
+
+      expect(recommendation.comboTools?.map((tool) => tool.tool.id)).toEqual([
+        'copilot-studio',
+        'power-apps',
+      ]);
+    });
+
+    it('keeps single-tool recommendations unchanged when no combo matches', () => {
+      const recommendation = findPrimaryRecommendation(
+        answerForSignals('ui-required'),
+        mockRulesFile
+      );
+
+      expect(recommendation.comboTools).toBeUndefined();
+      expect(recommendation.primaryTool.id).toBe('power-apps');
     });
   });
 

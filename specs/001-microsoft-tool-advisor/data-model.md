@@ -204,6 +204,20 @@ A question and associated signals used to break ties between equally-scored tool
 
 **Example**: If Power Apps and Copilot Studio both score 75, a tiebreaker asks "Does the user need natural language interaction?" to favor Copilot Studio if yes, Power Apps if no.
 
+### 11. ComboPattern
+
+A framework-defined combination of two tools for needs that span multiple responsibilities.
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| `id` | string | Yes | Unique identifier |
+| `requiredSignalIds` | string[] | Yes | Signals that must all be active for the pattern to match |
+| `toolIds` | string[] | Yes | Exactly two tool IDs, in display order |
+| `roles` | string[] | Yes | Exactly two explanations, aligned with `toolIds` |
+
+Combo patterns are checked before displaying a single-tool result. The regular score and runner-ups
+are still calculated for traceability, while `Recommendation.comboTools` supplies the paired result.
+
 ## rules.json Schema
 
 Location: `src/data/rules.json`. Imported as a module and bundled at build time — never fetched.
@@ -217,6 +231,7 @@ Location: `src/data/rules.json`. Imported as a module and bundled at build time 
 | `questions` | Question[] | Yes | 5-7 core questions plus optional tiebreakers; unique `id` and `position` |
 | `questionMappings` | QuestionMapping[] | Yes | One entry per question option; ids must resolve to defined signals/red flags |
 | `tiebreakers` | Tiebreaker[] | Yes | May be empty only if no tie is reachable |
+| `comboPatterns` | ComboPattern[] | No | Framework-defined two-tool combinations; defaults to an empty list |
 | `metadata` | object | Yes | `lastUpdated` (ISO date), `frameworkVersion` |
 
 `tests/unit/rules.test.ts` enforces every constraint in this table.

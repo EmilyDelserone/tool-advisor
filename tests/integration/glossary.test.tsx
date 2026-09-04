@@ -9,9 +9,15 @@ const uiEntry = glossary.find((entry) => entry.id === 'ui')!;
 const triggerName = (term: string) =>
   new RegExp(`what does "${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}" mean\\?`, 'i');
 
+const startWizard = async (user: ReturnType<typeof userEvent.setup>) => {
+  await user.click(screen.getByRole('button', { name: /get started/i }));
+};
+
 describe('Glossary tooltips', () => {
-  it('offers a definition trigger beside a technical term in the question', () => {
+  it('offers a definition trigger beside a technical term in the question', async () => {
+    const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     expect(screen.getByRole('button', { name: triggerName(uiEntry.term) })).toBeTruthy();
   });
@@ -19,6 +25,7 @@ describe('Glossary tooltips', () => {
   it('reveals the definition and example on tap', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     const trigger = screen.getByRole('button', { name: triggerName(uiEntry.term) });
     await user.pointer({ keys: '[TouchA]', target: trigger });
@@ -30,6 +37,7 @@ describe('Glossary tooltips', () => {
   it('reveals the definition on mouse hover', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     await user.hover(screen.getByRole('button', { name: triggerName(uiEntry.term) }));
 
@@ -39,6 +47,7 @@ describe('Glossary tooltips', () => {
   it('opens from the keyboard', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     const trigger = screen.getByRole('button', { name: triggerName(uiEntry.term) });
     trigger.focus();
@@ -49,8 +58,10 @@ describe('Glossary tooltips', () => {
     expect(await screen.findByText(uiEntry.definition)).toBeTruthy();
   });
 
-  it('annotates only the first mention of a term', () => {
+  it('annotates only the first mention of a term', async () => {
+    const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     expect(screen.getAllByRole('button', { name: triggerName(uiEntry.term) })).toHaveLength(1);
   });
@@ -58,6 +69,7 @@ describe('Glossary tooltips', () => {
   it('does not select a radio option when its definition is opened', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await startWizard(user);
 
     // Walk to the ownership-style question whose options mention citizen developers
     const citizenEntry = glossary.find((entry) => entry.id === 'citizen-developer')!;

@@ -1,7 +1,9 @@
 import { Card, Text, Title1, makeStyles, tokens } from '@fluentui/react-components';
+import { useState } from 'react';
 import type { RulesFile } from '../engine/types';
 import { useWizardState } from '../hooks/useWizardState';
 import { AnalyzingResultGate } from './AnalyzingResultGate';
+import { IntroScreen } from './IntroScreen';
 import { ProgressIndicator } from './ProgressIndicator';
 import { QuestionCard } from './QuestionCard';
 import { RecommendationResult } from './RecommendationResult';
@@ -30,7 +32,12 @@ const useStyles = makeStyles({
 
 export function WizardContainer({ rules }: WizardContainerProps) {
   const styles = useStyles();
+  const [hasStarted, setHasStarted] = useState(false);
   const wizard = useWizardState(rules);
+
+  if (!hasStarted) {
+    return <IntroScreen onGetStarted={() => setHasStarted(true)} />;
+  }
 
   if (wizard.recommendation) {
     return (

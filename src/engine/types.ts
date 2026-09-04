@@ -82,6 +82,18 @@ export interface RunnerUpTool {
   redFlagPenalty: number;
 }
 
+export interface ComboPattern {
+  id: string;
+  requiredSignalIds: string[];
+  toolIds: string[];
+  roles: string[];
+}
+
+export interface ComboTool {
+  tool: Tool;
+  role: string;
+}
+
 export interface Recommendation {
   primaryTool: Tool;
   score: number;
@@ -90,6 +102,8 @@ export interface Recommendation {
   matchedSignalIds: string[];
   matchedRedFlagIds: string[];
   runnerUps: RunnerUpTool[];
+  comboTools?: ComboTool[];
+  comboPatternId?: string;
   generatedAt: number;
   questionsAnswered: number;
 }
@@ -109,6 +123,7 @@ export interface RulesFile {
   questions: Question[];
   questionMappings: QuestionMapping[];
   tiebreakers: TiebreakerQuestion[];
+  comboPatterns?: ComboPattern[];
   metadata: {
     lastUpdated: string;
     frameworkVersion: string;
