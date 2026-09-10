@@ -5,6 +5,7 @@ import {
   answerByIndex,
   startWizard,
   tabToFirstRadio,
+  waitForQuestionView,
   walkPath,
 } from './helpers';
 
@@ -14,6 +15,7 @@ test.describe('Wizard end-to-end (US1, US2, US3)', () => {
   test('walks through all questions and shows a recommendation with runner-ups', async ({ page }) => {
     await page.goto('/');
     await startWizard(page);
+    await waitForQuestionView(page);
 
     await expect(page.getByText(`Question 1 of ${CORE_QUESTIONS}`)).toBeVisible();
     await expect(page.getByText('0% complete')).toBeVisible();
@@ -105,7 +107,7 @@ test.describe('Wizard end-to-end (US1, US2, US3)', () => {
   test('supports keyboard-only navigation through a question', async ({ page }) => {
     await page.goto('/');
     await startWizard(page);
-    await page.getByRole('radio').first().waitFor();
+    await waitForQuestionView(page);
 
     await tabToFirstRadio(page);
     await page.keyboard.press('Space');

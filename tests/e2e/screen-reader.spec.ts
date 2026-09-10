@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { UI_APP_PATH, answerByIndex, startWizard, walkPath } from './helpers';
+import { UI_APP_PATH, answerByIndex, startWizard, waitForQuestionView, walkPath } from './helpers';
 
 const INTERACTIVE_ROLES = ['button', 'link', 'radio', 'radiogroup', 'checkbox', 'textbox'];
 
@@ -25,6 +25,7 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
   test('names every interactive control on the question view', async ({ page }) => {
     await page.goto('/');
     await startWizard(page);
+    await waitForQuestionView(page);
 
     const tree = await ariaTree(page);
 
@@ -35,6 +36,7 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
   test('announces the question as the group label and each option', async ({ page }) => {
     await page.goto('/');
     await startWizard(page);
+    await waitForQuestionView(page);
 
     const tree = await ariaTree(page);
 
@@ -46,6 +48,7 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
   test('announces progress as text, not just a bar', async ({ page }) => {
     await page.goto('/');
     await startWizard(page);
+    await waitForQuestionView(page);
 
     const progress = page.getByRole('progressbar');
     await expect(progress).toHaveAttribute('aria-valuetext', /0 of \d+ questions answered/);
@@ -55,6 +58,7 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
   test('announces glossary triggers with the term they explain', async ({ page }) => {
     await page.goto('/');
     await startWizard(page);
+    await waitForQuestionView(page);
 
     const tree = await ariaTree(page);
 
@@ -83,6 +87,7 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
   test('exposes a single main landmark and one h1 per view', async ({ page }) => {
     await page.goto('/');
     await startWizard(page);
+    await waitForQuestionView(page);
 
     await expect(page.getByRole('main')).toHaveCount(1);
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
@@ -96,6 +101,7 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
   test('announces progress changes through a live region', async ({ page }) => {
     await page.goto('/');
     await startWizard(page);
+    await waitForQuestionView(page);
 
     const live = page.locator('[aria-live="polite"]');
     await expect(live).toContainText('Question 1 of');
@@ -108,6 +114,7 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
   test('announces the selected state of a radio option', async ({ page }) => {
     await page.goto('/');
     await startWizard(page);
+    await waitForQuestionView(page);
 
     const first = page.getByRole('radio').first();
     await expect(first).not.toBeChecked();
@@ -121,6 +128,7 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
   test('announces the step list as navigation with the current step marked', async ({ page }) => {
     await page.goto('/');
     await startWizard(page);
+    await waitForQuestionView(page);
 
     const nav = page.getByRole('navigation', { name: 'Wizard steps' });
     await expect(nav).toBeVisible();
@@ -136,6 +144,7 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
   test('announces glossary definitions when opened, without trapping focus', async ({ page }) => {
     await page.goto('/');
     await startWizard(page);
+    await waitForQuestionView(page);
 
     const trigger = page.getByRole('button', { name: /mean\?$/ }).first();
     await trigger.focus();

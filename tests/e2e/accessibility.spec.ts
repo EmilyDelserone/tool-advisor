@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { createRequire } from 'node:module';
-import { UI_APP_PATH, startWizard, tabToFirstRadio, walkPath } from './helpers';
+import { UI_APP_PATH, startWizard, tabToFirstRadio, waitForQuestionView, walkPath } from './helpers';
 
 const require = createRequire(import.meta.url);
 const axeSource: string = require('fs').readFileSync(
@@ -42,6 +42,7 @@ test.describe('Accessibility audit (DR-001, SC-006)', () => {
   test('question view has no WCAG 2.1 AA violations', async ({ page }) => {
     await page.goto('/');
     await startWizard(page);
+    await waitForQuestionView(page);
 
     const results = await auditPage(page);
     const serious = results.violations.filter(

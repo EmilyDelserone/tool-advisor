@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { UI_APP_PATH, startWizard, walkPath } from './helpers';
+import { UI_APP_PATH, startWizard, waitForQuestionView, walkPath } from './helpers';
 
 const VIEWPORTS = [
   { name: 'mobile', width: 320, height: 720 },
@@ -46,6 +46,7 @@ test.describe('Responsive layout (DR-002, DR-006)', () => {
     await page.setViewportSize({ width: 320, height: 720 });
     await page.goto('/');
     await startWizard(page);
+    await waitForQuestionView(page);
 
     // Inline glossary affordances follow the 24px WCAG 2.2 AA minimum, not the 44px action target
     for (const button of await page
