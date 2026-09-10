@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { UI_APP_PATH, answerByIndex } from './helpers';
+import { UI_APP_PATH, answerByIndex, startWizard } from './helpers';
 
 // Wall-clock budgets here include Playwright round-trip overhead, so they are coarse regression
 // guards. The precise NFR-001 compute budget is asserted in tests/unit/scoring.test.ts.
@@ -9,7 +9,7 @@ const INTERACTION_BUDGET_MS = 2000;
 test.describe('Performance budgets (NFR-001, NFR-004)', () => {
   test('first load completes within budget', async ({ page }) => {
     await page.goto('/', { waitUntil: 'load' });
-    await page.getByRole('radio').first().waitFor();
+    await page.getByRole('button', { name: /get started/i }).waitFor();
 
     const timing = await page.evaluate(() => {
       const [nav] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
@@ -21,6 +21,7 @@ test.describe('Performance budgets (NFR-001, NFR-004)', () => {
 
   test('question transitions render within budget', async ({ page }) => {
     await page.goto('/');
+    await startWizard(page);
     await page.getByRole('radio').first().waitFor();
 
     const durations: number[] = [];

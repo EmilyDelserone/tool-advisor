@@ -1,14 +1,23 @@
 import { test, expect } from '@playwright/test';
-import { TIE_PATH, UI_APP_PATH, answerByIndex, tabToFirstRadio, walkPath } from './helpers';
+import {
+  TIE_PATH,
+  UI_APP_PATH,
+  answerByIndex,
+  startWizard,
+  tabToFirstRadio,
+  walkPath,
+} from './helpers';
 
 const CORE_QUESTIONS = UI_APP_PATH.length;
 
 test.describe('Wizard end-to-end (US1, US2, US3)', () => {
   test('walks through all questions and shows a recommendation with runner-ups', async ({ page }) => {
     await page.goto('/');
+    await startWizard(page);
 
     await expect(page.getByText(`Question 1 of ${CORE_QUESTIONS}`)).toBeVisible();
-    await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1');
+    await expect(page.getByText('0% complete')).toBeVisible();
+    await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
 
     await answerByIndex(page, UI_APP_PATH[0]);
     await expect(page.getByText(`Question 2 of ${CORE_QUESTIONS}`)).toBeVisible();
@@ -46,7 +55,7 @@ test.describe('Wizard end-to-end (US1, US2, US3)', () => {
     }
   });
 
-  test('presents the tiebreaker question when tools tie and resolves to one tool', async ({ page }) => {
+  test('presents the tiebreaker question when tools tie and resolves to one recommendation', async ({ page }) => {
     await page.goto('/');
     await walkPath(page, TIE_PATH);
 
@@ -57,7 +66,7 @@ test.describe('Wizard end-to-end (US1, US2, US3)', () => {
     await page.getByLabel('Business users or citizen developers').check();
     await page.getByRole('button', { name: /see recommendation/i }).click();
 
-    await expect(page.getByText('Recommended tool')).toBeVisible();
+    await expect(page.getByText(/Recommended (tool|combination)/)).toBeVisible();
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
   });
 
@@ -84,15 +93,18 @@ test.describe('Wizard end-to-end (US1, US2, US3)', () => {
     await expect(page.getByText(`${winnerFit}% fit`).first()).toBeVisible();
   });
 
-  test('restarts back to the first question', async ({ page }) => {    await page.goto('/');
+  test('restarts to the intro screen', async ({ page }) => {
+    await page.goto('/');
     await walkPath(page, UI_APP_PATH);
 
     await page.getByRole('button', { name: /start over/i }).click();
-    await expect(page.getByText(`Question 1 of ${CORE_QUESTIONS}`)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /find the right microsoft tool/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /get started/i })).toBeVisible();
   });
 
   test('supports keyboard-only navigation through a question', async ({ page }) => {
     await page.goto('/');
+    await startWizard(page);
     await page.getByRole('radio').first().waitFor();
 
     await tabToFirstRadio(page);

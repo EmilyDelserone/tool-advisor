@@ -1,10 +1,12 @@
 import { test, expect } from '@playwright/test';
+import { startWizard } from './helpers';
 
 const TERM_TRIGGER = /what does ".*" mean\?/i;
 
 test.describe('Glossary definitions (FR-009)', () => {
   test('opens on mouse hover', async ({ page }) => {
     await page.goto('/');
+    await startWizard(page);
 
     const trigger = page.getByRole('button', { name: TERM_TRIGGER }).first();
     await trigger.hover();
@@ -14,6 +16,7 @@ test.describe('Glossary definitions (FR-009)', () => {
 
   test('opens from the keyboard and closes with Escape', async ({ page }) => {
     await page.goto('/');
+    await startWizard(page);
 
     const trigger = page.getByRole('button', { name: TERM_TRIGGER }).first();
     await trigger.focus();
@@ -27,6 +30,7 @@ test.describe('Glossary definitions (FR-009)', () => {
 
   test('is reachable by tabbing, never trapping focus', async ({ page }) => {
     await page.goto('/');
+    await startWizard(page);
 
     const trigger = page.getByRole('button', { name: TERM_TRIGGER }).first();
     await trigger.focus();
@@ -42,6 +46,7 @@ test.describe('Glossary definitions on touch devices', () => {
 
   test('reveals the definition on tap', async ({ page }) => {
     await page.goto('/');
+    await startWizard(page);
 
     const trigger = page.getByRole('button', { name: TERM_TRIGGER }).first();
     await trigger.tap();

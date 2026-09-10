@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { createRequire } from 'node:module';
-import { UI_APP_PATH, tabToFirstRadio, walkPath } from './helpers';
+import { UI_APP_PATH, startWizard, tabToFirstRadio, walkPath } from './helpers';
 
 const require = createRequire(import.meta.url);
 const axeSource: string = require('fs').readFileSync(
@@ -10,6 +10,20 @@ const axeSource: string = require('fs').readFileSync(
 
 type AxeResults = {
   violations: Array<{ id: string; impact: string | null; help: string; nodes: unknown[] }>;
+};
+
+const tabToContinueButton = async (page: Page, maxPresses = 30) => {
+  const button = page.getByRole('button', { name: /next|see recommendation/i });
+
+  for (let i = 0; i < maxPresses; i += 1) {
+    if (await button.evaluate((element) => element === document.activeElement)) {
+      return;
+    }
+
+    await page.keyboard.press('Tab');
+  }
+
+  throw new Error('Could not reach the continue button using Tab');
 };
 
 const auditPage = async (page: Page): Promise<AxeResults> => {
@@ -27,6 +41,7 @@ const auditPage = async (page: Page): Promise<AxeResults> => {
 test.describe('Accessibility audit (DR-001, SC-006)', () => {
   test('question view has no WCAG 2.1 AA violations', async ({ page }) => {
     await page.goto('/');
+    await startWizard(page);
 
     const results = await auditPage(page);
     const serious = results.violations.filter(
@@ -53,14 +68,19 @@ test.describe('Accessibility audit (DR-001, SC-006)', () => {
 
   test('the whole wizard is operable with the keyboard only', async ({ page }) => {
     await page.goto('/');
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Enter');
 
-    for (let i = 0; i < UI_APP_PATH.length; i += 1) {
+    for (const optionIndex of UI_APP_PATH) {
       await tabToFirstRadio(page);
+      for (let i = 0; i < optionIndex; i += 1) {
+        await page.keyboard.press('ArrowDown');
+      }
       await page.keyboard.press('Space');
-      await page.getByRole('button', { name: /next|see recommendation/i }).focus();
+      await tabToContinueButton(page);
       await page.keyboard.press('Enter');
     }
 
-    await expect(page.getByText('Recommended tool')).toBeVisible();
+    await expect(page.getByText(/Recommended (tool|combination)/)).toBeVisible();
   });
 });
