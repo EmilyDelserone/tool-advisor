@@ -12,8 +12,8 @@ type AxeResults = {
   violations: Array<{ id: string; impact: string | null; help: string; nodes: unknown[] }>;
 };
 
-const tabToContinueButton = async (page: Page, maxPresses = 30) => {
-  const button = page.getByRole('button', { name: /next|see recommendation/i });
+const tabToButton = async (page: Page, name: RegExp, maxPresses = 30) => {
+  const button = page.getByRole('button', { name });
 
   for (let i = 0; i < maxPresses; i += 1) {
     if (await button.evaluate((element) => element === document.activeElement)) {
@@ -23,7 +23,7 @@ const tabToContinueButton = async (page: Page, maxPresses = 30) => {
     await page.keyboard.press('Tab');
   }
 
-  throw new Error('Could not reach the continue button using Tab');
+  throw new Error(`Could not reach the ${name} button using Tab`);
 };
 
 const auditPage = async (page: Page): Promise<AxeResults> => {
@@ -68,7 +68,7 @@ test.describe('Accessibility audit (DR-001, SC-006)', () => {
 
   test('the whole wizard is operable with the keyboard only', async ({ page }) => {
     await page.goto('/');
-    await page.keyboard.press('Tab');
+    await tabToButton(page, /get started/i);
     await page.keyboard.press('Enter');
 
     for (const optionIndex of UI_APP_PATH) {
@@ -77,7 +77,7 @@ test.describe('Accessibility audit (DR-001, SC-006)', () => {
         await page.keyboard.press('ArrowDown');
       }
       await page.keyboard.press('Space');
-      await tabToContinueButton(page);
+      await tabToButton(page, /next|see recommendation/i);
       await page.keyboard.press('Enter');
     }
 

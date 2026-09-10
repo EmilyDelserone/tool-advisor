@@ -5,11 +5,14 @@ export const UI_APP_PATH = [0, 1, 1, 1, 1, 0, 1]; // resolves cleanly to Power A
 export const TIE_PATH = [1, 0, 0, 1, 0, 0, 0]; // ties Copilot Studio with Azure Logic Apps
 
 export async function startWizard(page: Page) {
-  const getStarted = page.getByRole('button', { name: /get started/i });
+  const firstQuestionOption = page.getByRole('radio').first();
 
-  if (await getStarted.isVisible()) {
-    await getStarted.click();
+  if (await firstQuestionOption.isVisible()) {
+    return;
   }
+
+  await page.getByRole('button', { name: /get started/i }).click();
+  await firstQuestionOption.waitFor();
 }
 
 export async function answerByIndex(page: Page, optionIndex: number) {
