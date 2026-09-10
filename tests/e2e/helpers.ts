@@ -6,8 +6,14 @@ export const TIE_PATH = [1, 0, 0, 1, 0, 0, 0]; // ties Copilot Studio with Azure
 
 export async function startWizard(page: Page) {
   const getStarted = page.getByRole('button', { name: /get started/i });
+  const count = await getStarted.count();
 
-  if (await getStarted.count()) {
+  if (count > 1) {
+    throw new Error(`Expected at most one Get Started button, found ${count}`);
+  }
+
+  if (count === 1) {
+    await getStarted.waitFor({ state: 'visible' });
     await getStarted.click();
   }
 }
