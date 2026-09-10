@@ -1,9 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { UI_APP_PATH, answerByIndex, walkPath } from './helpers';
+import { UI_APP_PATH, answerByIndex, startWizard, waitForQuestionView, walkPath } from './helpers';
 
 test.describe('Editing earlier answers (FR-021)', () => {
   test('jumps to an earlier question from the step list', async ({ page }) => {
     await page.goto('/');
+    await startWizard(page);
+    await waitForQuestionView(page);
 
     await answerByIndex(page, UI_APP_PATH[0]);
     await answerByIndex(page, UI_APP_PATH[1]);
@@ -17,6 +19,8 @@ test.describe('Editing earlier answers (FR-021)', () => {
 
   test('marks the current step and disables unreached steps', async ({ page }) => {
     await page.goto('/');
+    await startWizard(page);
+    await waitForQuestionView(page);
 
     await expect(page.getByRole('button', { name: /^Question 1:/ })).toHaveAttribute(
       'aria-current',

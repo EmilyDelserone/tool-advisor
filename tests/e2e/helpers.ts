@@ -4,12 +4,55 @@ import type { Page } from '@playwright/test';
 export const UI_APP_PATH = [0, 1, 1, 1, 1, 0, 1]; // resolves cleanly to Power Apps
 export const TIE_PATH = [1, 0, 0, 1, 0, 0, 0]; // ties Copilot Studio with Azure Logic Apps
 
+export async function startWizard(page: Page) {
+  const getStarted = page.getByRole('button', { name: /get started/i });
+  const count = await getStarted.count();
+
+  if (count > 1) {
+    throw new Error(`Expected at most one Get Started button, found ${count}`);
+  }
+
+  if (count === 1) {
+    await getStarted.waitFor({ state: 'visible' });
+    await getStarted.click();
+  }
+}
+
+export async function waitForQuestionView(page: Page) {
+  await page.getByText(/^(Question|Tiebreaker question) \d+ of \d+$/).waitFor();
+  await page.getByRole('heading', { level: 2 }).waitFor();
+  await page.getByRole('radio').first().waitFor();
+}
+
+export async function tabToButton(page: Page, name: RegExp, maxPresses = 30) {
+  const button = page.getByRole('button', { name });
+
+  for (let i = 0; i < maxPresses; i += 1) {
+    const count = await button.count();
+
+    if (count > 1) {
+      throw new Error(`Expected at most one ${name} button, found ${count}`);
+    }
+
+    if (count === 1 && (await button.evaluate((element) => element === document.activeElement))) {
+      return;
+    }
+
+    await page.keyboard.press('Tab');
+  }
+
+  throw new Error(`Could not reach the ${name} button using Tab`);
+}
+
 export async function answerByIndex(page: Page, optionIndex: number) {
   await page.getByRole('radio').nth(optionIndex).check();
   await page.getByRole('button', { name: /next|see recommendation/i }).click();
 }
 
 export async function walkPath(page: Page, path: number[]) {
+  await startWizard(page);
+  await waitForQuestionView(page);
+
   for (const optionIndex of path) {
     await answerByIndex(page, optionIndex);
   }
