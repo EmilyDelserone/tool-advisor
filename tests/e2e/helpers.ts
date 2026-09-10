@@ -23,13 +23,14 @@ export async function waitForQuestionView(page: Page) {
 }
 
 export async function answerByIndex(page: Page, optionIndex: number) {
-  await startWizard(page);
-  await waitForQuestionView(page);
   await page.getByRole('radio').nth(optionIndex).check();
   await page.getByRole('button', { name: /next|see recommendation/i }).click();
 }
 
 export async function walkPath(page: Page, path: number[]) {
+  await startWizard(page);
+  await waitForQuestionView(page);
+
   for (const optionIndex of path) {
     await answerByIndex(page, optionIndex);
   }
@@ -37,8 +38,6 @@ export async function walkPath(page: Page, path: number[]) {
 
 /** Tabs forward until a radio has focus, so glossary triggers and step buttons don't break the walk. */
 export async function tabToFirstRadio(page: Page, maxPresses = 30) {
-  await startWizard(page);
-  await waitForQuestionView(page);
   await page.locator('body').press('Tab');
 
   for (let i = 0; i < maxPresses; i += 1) {
