@@ -6,12 +6,12 @@ export const TIE_PATH = [1, 0, 0, 1, 0, 0, 0]; // ties Copilot Studio with Azure
 
 export async function startWizard(page: Page) {
   const firstQuestionOption = page.getByRole('radio').first();
+  const getStarted = page.getByRole('button', { name: /get started/i });
 
-  if (await firstQuestionOption.isVisible()) {
-    return;
+  if (await getStarted.count()) {
+    await getStarted.click();
   }
 
-  await page.getByRole('button', { name: /get started/i }).click();
   await firstQuestionOption.waitFor();
 }
 

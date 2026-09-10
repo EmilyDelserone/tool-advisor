@@ -170,7 +170,7 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
   test('keeps decorative tool icons out of the accessibility tree', async ({ page }) => {
     await page.goto('/');
     await walkPath(page, UI_APP_PATH);
-    await expect(page.getByText('Recommended tool')).toBeVisible();
+    await expect(page.getByText(/Recommended (tool|combination)/)).toBeVisible();
 
     const tree = await ariaTree(page);
 
