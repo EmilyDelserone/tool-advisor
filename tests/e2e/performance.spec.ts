@@ -39,6 +39,8 @@ test.describe('Performance budgets (NFR-001, NFR-004)', () => {
 
   test('recommendation generation is effectively instant', async ({ page }) => {
     await page.goto('/');
+    await startWizard(page);
+    await waitForQuestionView(page);
 
     for (const optionIndex of UI_APP_PATH.slice(0, -1)) {
       await answerByIndex(page, optionIndex);

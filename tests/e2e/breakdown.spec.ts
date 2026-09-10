@@ -10,6 +10,7 @@ test.describe('Runner-up score breakdown (FR-020)', () => {
     await walkPath(page, UI_APP_PATH);
 
     const toggles = page.getByRole('button', { name: SHOW_TOGGLE });
+    await expect(toggles.first()).toBeVisible();
     const count = await toggles.count();
     expect(count).toBeGreaterThanOrEqual(1);
 

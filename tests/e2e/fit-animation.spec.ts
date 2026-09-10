@@ -40,6 +40,9 @@ test.describe('Fit score bar animation (DR-011)', () => {
   test('staggers the winner and runner-ups', async ({ page }) => {
     await page.goto('/');
     await walkPath(page, UI_APP_PATH);
+    await expect
+      .poll(async () => barsIn(page).count())
+      .toBeGreaterThanOrEqual(2);
 
     const delays = await barsIn(page).evaluateAll((els) =>
       els.map((el) => getComputedStyle(el).animationDelay)
