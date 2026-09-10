@@ -26,7 +26,13 @@ export async function tabToButton(page: Page, name: RegExp, maxPresses = 30) {
   const button = page.getByRole('button', { name });
 
   for (let i = 0; i < maxPresses; i += 1) {
-    if (await button.evaluate((element) => element === document.activeElement)) {
+    const count = await button.count();
+
+    if (count > 1) {
+      throw new Error(`Expected at most one ${name} button, found ${count}`);
+    }
+
+    if (count === 1 && (await button.evaluate((element) => element === document.activeElement))) {
       return;
     }
 
