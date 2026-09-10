@@ -19,6 +19,8 @@ export async function startWizard(page: Page) {
 }
 
 export async function waitForQuestionView(page: Page) {
+  await page.getByText(/^(Question|Tiebreaker question) \d+ of \d+$/).waitFor();
+  await page.getByRole('heading', { level: 2 }).waitFor();
   await page.getByRole('radio').first().waitFor();
 }
 
