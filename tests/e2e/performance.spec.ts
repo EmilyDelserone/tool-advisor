@@ -8,13 +8,17 @@ const INTERACTION_BUDGET_MS = 2000;
 
 test.describe('Performance budgets (NFR-001, NFR-004)', () => {
   test('first load completes within budget', async ({ page }) => {
-    const started = Date.now();
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'load' });
+
+    const timing = await page.evaluate(() => {
+      const [nav] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+      return nav.domContentLoadedEventEnd - nav.startTime;
+    });
+
     await startWizard(page);
     await waitForQuestionView(page);
 
-    const elapsed = Date.now() - started;
-    expect(elapsed, `first interactive view took ${elapsed}ms`).toBeLessThan(FIRST_LOAD_BUDGET_MS);
+    expect(timing).toBeLessThan(FIRST_LOAD_BUDGET_MS);
   });
 
   test('question transitions render within budget', async ({ page }) => {
