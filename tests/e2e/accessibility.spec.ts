@@ -1,6 +1,13 @@
 import { test, expect, type Page } from '@playwright/test';
 import { createRequire } from 'node:module';
-import { UI_APP_PATH, startWizard, tabToFirstRadio, waitForQuestionView, walkPath } from './helpers';
+import {
+  UI_APP_PATH,
+  startWizard,
+  tabToButton,
+  tabToFirstRadio,
+  waitForQuestionView,
+  walkPath,
+} from './helpers';
 
 const require = createRequire(import.meta.url);
 const axeSource: string = require('fs').readFileSync(
@@ -10,20 +17,6 @@ const axeSource: string = require('fs').readFileSync(
 
 type AxeResults = {
   violations: Array<{ id: string; impact: string | null; help: string; nodes: unknown[] }>;
-};
-
-const tabToButton = async (page: Page, name: RegExp, maxPresses = 30) => {
-  const button = page.getByRole('button', { name });
-
-  for (let i = 0; i < maxPresses; i += 1) {
-    if (await button.evaluate((element) => element === document.activeElement)) {
-      return;
-    }
-
-    await page.keyboard.press('Tab');
-  }
-
-  throw new Error(`Could not reach the ${name} button using Tab`);
 };
 
 const auditPage = async (page: Page): Promise<AxeResults> => {

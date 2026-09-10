@@ -22,6 +22,20 @@ export async function waitForQuestionView(page: Page) {
   await page.getByRole('radio').first().waitFor();
 }
 
+export async function tabToButton(page: Page, name: RegExp, maxPresses = 30) {
+  const button = page.getByRole('button', { name });
+
+  for (let i = 0; i < maxPresses; i += 1) {
+    if (await button.evaluate((element) => element === document.activeElement)) {
+      return;
+    }
+
+    await page.keyboard.press('Tab');
+  }
+
+  throw new Error(`Could not reach the ${name} button using Tab`);
+}
+
 export async function answerByIndex(page: Page, optionIndex: number) {
   await page.getByRole('radio').nth(optionIndex).check();
   await page.getByRole('button', { name: /next|see recommendation/i }).click();
