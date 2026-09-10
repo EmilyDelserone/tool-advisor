@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { UI_APP_PATH, walkPath } from './helpers';
 
 const SHOW_TOGGLE = /^Show what lowered /;
@@ -8,8 +8,10 @@ test.describe('Runner-up score breakdown (FR-020)', () => {
   test('is collapsed by default', async ({ page }) => {
     await page.goto('/');
     await walkPath(page, UI_APP_PATH);
+    await expect(page.getByText('Recommended tool')).toBeVisible();
 
     const toggles = page.getByRole('button', { name: SHOW_TOGGLE });
+    await toggles.first().waitFor();
     const count = await toggles.count();
     expect(count).toBeGreaterThanOrEqual(1);
 

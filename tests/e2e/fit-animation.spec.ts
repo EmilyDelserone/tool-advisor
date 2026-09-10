@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { UI_APP_PATH, walkPath } from './helpers';
 
 const barsIn = (page: import('@playwright/test').Page) =>
@@ -41,6 +41,7 @@ test.describe('Fit score bar animation (DR-011)', () => {
     await page.goto('/');
     await walkPath(page, UI_APP_PATH);
 
+    await barsIn(page).nth(1).waitFor();
     const delays = await barsIn(page).evaluateAll((els) =>
       els.map((el) => getComputedStyle(el).animationDelay)
     );

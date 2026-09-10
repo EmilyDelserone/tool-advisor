@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 const TERM_TRIGGER = /what does ".*" mean\?/i;
 

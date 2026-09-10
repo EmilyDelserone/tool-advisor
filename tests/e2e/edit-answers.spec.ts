@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { UI_APP_PATH, answerByIndex, walkPath } from './helpers';
 
 test.describe('Editing earlier answers (FR-021)', () => {

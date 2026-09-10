@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page } from './fixtures';
 import { UI_APP_PATH, answerByIndex, walkPath } from './helpers';
 
 const INTERACTIVE_ROLES = ['button', 'link', 'radio', 'radiogroup', 'checkbox', 'textbox'];
@@ -45,8 +45,8 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
     await page.goto('/');
 
     const progress = page.getByRole('progressbar');
-    await expect(progress).toHaveAttribute('aria-valuetext', /Question 1 of \d+/);
-    await expect(progress).toHaveAttribute('aria-valuenow', '1');
+    await expect(progress).toHaveAttribute('aria-valuetext', /\d+ of \d+ questions answered/);
+    await expect(progress).toHaveAttribute('aria-valuenow', '0');
   });
 
   test('announces glossary triggers with the term they explain', async ({ page }) => {
@@ -161,6 +161,7 @@ test.describe('Screen reader announcements (DR-001, SC-006)', () => {
   test('keeps decorative tool icons out of the accessibility tree', async ({ page }) => {
     await page.goto('/');
     await walkPath(page, UI_APP_PATH);
+    await expect(page.getByText('Recommended tool')).toBeVisible();
 
     const tree = await ariaTree(page);
 

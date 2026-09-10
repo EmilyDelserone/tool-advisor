@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { UI_APP_PATH, answerByIndex } from './helpers';
 
 // Wall-clock budgets here include Playwright round-trip overhead, so they are coarse regression

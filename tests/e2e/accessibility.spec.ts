@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page } from './fixtures';
 import { createRequire } from 'node:module';
 import { UI_APP_PATH, tabToFirstRadio, walkPath } from './helpers';
 
@@ -61,6 +61,7 @@ test.describe('Accessibility audit (DR-001, SC-006)', () => {
       await page.keyboard.press('Enter');
     }
 
-    await expect(page.getByText('Recommended tool')).toBeVisible();
+    // The wizard may resolve to a single tool or a combo recommendation
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 });

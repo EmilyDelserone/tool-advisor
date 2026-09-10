@@ -1,4 +1,4 @@
-import { test, expect, type Request } from '@playwright/test';
+import { test, expect, type Request } from './fixtures';
 import { UI_APP_PATH, walkPath } from './helpers';
 
 test.describe('Client-side completeness (US4, FR-008, FR-011, SC-004, SC-005)', () => {
